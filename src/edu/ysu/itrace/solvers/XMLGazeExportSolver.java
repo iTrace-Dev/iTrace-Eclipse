@@ -23,11 +23,7 @@ import org.osgi.service.event.Event;
 import org.osgi.service.event.EventHandler;
 
 import edu.ysu.itrace.AstManager.SourceCodeEntity;
-import edu.ysu.itrace.SOManager.StackOverflowEntity;
-import edu.ysu.itrace.BRManager.BugReportEntity;
 import edu.ysu.itrace.gaze.IGazeResponse;
-import edu.ysu.itrace.gaze.IStackOverflowGazeResponse;
-import edu.ysu.itrace.gaze.IBugReportGazeResponse;
 import edu.ysu.itrace.gaze.IStyledTextGazeResponse;
 
 /**
@@ -175,33 +171,7 @@ public class XMLGazeExportSolver implements IFileExportSolver, EventHandler {
                     }
                     responseWriter.writeEndElement();
 
-                } else if (response instanceof IStackOverflowGazeResponse) {
-                	IStackOverflowGazeResponse stackOverflowResponse =
-                            (IStackOverflowGazeResponse) response;
-                	StackOverflowEntity soe = stackOverflowResponse.getSOE();
-                    responseWriter.writeAttribute("url", stackOverflowResponse.getURL());
-                    responseWriter.writeAttribute("Id", stackOverflowResponse.getID());
-                    responseWriter.writeStartElement("soe");
-                    responseWriter.writeAttribute("part", soe.part.toString());
-                    responseWriter.writeAttribute("part_number", String.valueOf(soe.partNum));
-                    responseWriter.writeAttribute("type", soe.type.toString());
-                    responseWriter.writeAttribute("type_number", String.valueOf(soe.typeNum));
-                    responseWriter.writeEndElement();
                 } 
-                else if (response instanceof IBugReportGazeResponse) {
-                	IBugReportGazeResponse bugReportResponse =
-                            (IBugReportGazeResponse) response;
-                	BugReportEntity bre = bugReportResponse.getBRE();
-                    responseWriter.writeAttribute("url", bugReportResponse.getURL());
-                    responseWriter.writeAttribute("Id", bugReportResponse.getID());
-                    responseWriter.writeStartElement("bre");
-                    responseWriter.writeAttribute("part", bre.part.toString());
-                    responseWriter.writeAttribute("part_number", String.valueOf(bre.partNum));
-                    responseWriter.writeAttribute("type", bre.type.toString());
-                    responseWriter.writeAttribute("type_number", String.valueOf(bre.typeNum));
-                    responseWriter.writeEndElement();
-                }
-                
                 else {
                 	//ignore anything else
                 }

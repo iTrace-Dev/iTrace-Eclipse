@@ -33,11 +33,9 @@ import edu.ysu.itrace.exceptions.EyeTrackerConnectException;
 import edu.ysu.itrace.gaze.IGazeHandler;
 import edu.ysu.itrace.gaze.IGazeResponse;
 import edu.ysu.itrace.gaze.IStyledTextGazeResponse;
-import edu.ysu.itrace.preferences.PluginPreferences;
 import edu.ysu.itrace.solvers.ISolver;
 import edu.ysu.itrace.solvers.JSONGazeExportSolver;
 import edu.ysu.itrace.solvers.XMLGazeExportSolver;
-import edu.ysu.itrace.trackers.IEyeTracker;
 
 /**
  * The activator class controls the plug-in life cycle
@@ -53,8 +51,7 @@ public class ITrace extends AbstractUIPlugin implements EventHandler {
     private IEditorPart activeEditor;
     private HashMap<IEditorPart,TokenHighlighter> tokenHighlighters = new HashMap<IEditorPart,TokenHighlighter>();
     private boolean showTokenHighlights = false;
-    
-    private IEyeTracker tracker = null;
+
     private volatile boolean recording;
     private JSONGazeExportSolver jsonSolver;
     private XMLGazeExportSolver xmlSolver;
@@ -102,8 +99,6 @@ public class ITrace extends AbstractUIPlugin implements EventHandler {
         super.start(context);
         plugin = this;
         IPreferenceStore prefStore = getDefault().getPreferenceStore();
-        EyeTrackerFactory.setTrackerType(EyeTrackerFactory.TrackerType.valueOf(
-                prefStore.getString(PluginPreferences.EYE_TRACKER_TYPE)));
         activeEditor = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage().getActiveEditor();
     }
 
@@ -113,7 +108,7 @@ public class ITrace extends AbstractUIPlugin implements EventHandler {
      */
     public void stop(BundleContext context) throws Exception {
     	if (recording) {
-            stopTracking();
+            disconnectFromServer();
         }
         plugin = null;
         super.stop(context);
@@ -126,17 +121,6 @@ public class ITrace extends AbstractUIPlugin implements EventHandler {
      */
     public static ITrace getDefault() {
         return plugin;
-    }
-    
-    public IEyeTracker getTracker(){
-    	return tracker;
-    }
-    
-    public void setTrackerXDrift(int drift){
-    	tracker.setXDrift(drift);
-    }
-    public void setTrackerYDrift(int drift){
-    	tracker.setYDrift(drift);
     }
     
     public Shell getRootShell(){
@@ -173,63 +157,25 @@ public class ITrace extends AbstractUIPlugin implements EventHandler {
     	return sessionInfo.isConfigured();
     }
     
-    public void calibrateTracker(){
-    	requestTracker();
-        if (tracker != null) {
-            try {
-                tracker.calibrate();
-            } catch (CalibrationException e1) {
-            	eventBroker.post("iTrace/error", e1.getMessage());
-            }
-        } else {
-            // If tracker is none, requestTracker() would have already
-            // raised an error.
-        }
-    }
-    
-    public boolean startTracking() {
+    public boolean connectToServer() {
         if (recording) {
             eventBroker.post("iTrace/error", "Tracking is already in progress.");
             return recording;
         }
-        if (!requestTracker()) {
-            // Error handling occurs in requestTracker(). Just return and
-            // pretend
-            // nothing happened.
-            return recording;
-        }
         //eventBroker.subscribe("iTrace/newgaze", this);
-        
-        if (!sessionInfo.isConfigured()) {
-        	eventBroker.post("iTrace/error", "You have not configured your Session Info.");
-        	return recording;
-        }
-        
-        try {
-        	sessionInfo.export();
-        } catch(IOException e) {
-        	System.out.println(e.getMessage());
-        }
-        ITrace.getDefault().sessionStartTime = System.nanoTime();
         recording = true;
         return recording;
     }
     
-    public boolean stopTracking() {
+    public boolean disconnectFromServer() {
         if (!recording) {
         	eventBroker.post("iTrace/error", "Tracking is not in progress.");
             return false;
         }
-        sessionInfo.reset();
         
         xmlSolver.dispose();
         jsonSolver.dispose();
         
-        if (tracker != null) {
-        } else {
-            // If there is no tracker, tracking should not be occurring anyways.
-            System.out.println("No Tracker");
-        }
         statusLineManager.setMessage("");
 
         recording = false;
@@ -237,28 +183,13 @@ public class ITrace extends AbstractUIPlugin implements EventHandler {
     }
     
     public boolean toggleTracking(){
-    	if(recording) return stopTracking();
-    	else return startTracking();
+    	if(recording) return disconnectFromServer();
+    	else return connectToServer();
     }
     
     public boolean displayCrosshair(boolean display){
-    	if (tracker == null)
-            requestTracker();
-        if (tracker != null) {
-        	tracker.displayCrosshair(display);
+        	//tracker.displayCrosshair(display); //Need to think of a way to display crosshair
         	return display;
-        }
-       	return !display;
-    }
-    
-    public void configureSessionInfo(){
-    	sessionInfo.config();
-    	if (sessionInfo.isConfigured()) {
-    		xmlSolver.config(sessionInfo.getSessionID(),
-    				sessionInfo.getDevUsername());
-    		jsonSolver.config(sessionInfo.getSessionID(),
-    				sessionInfo.getDevUsername());
-    	}
     }
     
     public void setActiveEditor(IEditorPart editorPart){
@@ -278,22 +209,12 @@ public class ITrace extends AbstractUIPlugin implements EventHandler {
     }
     
     public void displayEyeStatus(){
-    	if (tracker == null)
-            requestTracker();
-        if (tracker != null){
         	EyeStatusWindow statusWindow = new EyeStatusWindow();
         	statusWindow.setVisible(true);
-        }
     }
     
     public void activateHighlights(){
-    	if (tracker == null)
-            requestTracker();
-		
-        
-        if (tracker != null){
         	showTokenHighLights();
-        }
     }
     
     public void removeHighlighter(IEditorPart editorPart){
@@ -316,26 +237,6 @@ public class ITrace extends AbstractUIPlugin implements EventHandler {
     	for(TokenHighlighter tokenHighlighter: tokenHighlighters.values()){
     		tokenHighlighter.setShow(showTokenHighlights);
     	}
-    }
-    
-    private boolean requestTracker() {
-        if (tracker != null) {
-            // Already have a tracker. Don't need another.
-            return true;
-        }
-        try {
-            tracker = EyeTrackerFactory.getConcreteEyeTracker();
-            if (tracker != null) {
-            	tracker.startTracking();
-                return true;
-            }else{
-            	return false;
-            }
-        } catch (EyeTrackerConnectException e) {
-            return false;
-        } catch (IOException e) {
-            return false;
-        }
     }
     
     /**

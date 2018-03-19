@@ -14,6 +14,7 @@ import org.eclipse.swt.events.ModifyEvent;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.layout.GridData;
+import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.layout.RowLayout;
 import org.eclipse.swt.widgets.Button;
@@ -35,11 +36,6 @@ import org.eclipse.ui.part.ViewPart;
 import org.osgi.service.event.Event;
 import org.osgi.service.event.EventHandler;
 
-import edu.ysu.itrace.filters.IFilter;
-import edu.ysu.itrace.filters.fixation.JSONBasicFixationFilter;
-import edu.ysu.itrace.filters.fixation.OldJSONBasicFixationFilter;
-import edu.ysu.itrace.filters.fixation.OldXMLBasicFixationFilter;
-import edu.ysu.itrace.filters.fixation.XMLBasicFixationFilter;
 
 /**
  * ViewPart for managing and controlling the plugin.
@@ -62,8 +58,6 @@ public class ControlView extends ViewPart implements IPartListener2, EventHandle
     private Spinner xDrift;
     private Spinner yDrift;
     
-    private CopyOnWriteArrayList<IFilter> availableFilters =
-    		new CopyOnWriteArrayList<IFilter>();
 
     private IEventBroker eventBroker;
 
@@ -93,37 +87,27 @@ public class ControlView extends ViewPart implements IPartListener2, EventHandle
         //Button Composite start.
         final Composite buttonComposite = new Composite(parent, SWT.NONE);
         buttonComposite.setLayout(new GridLayout(2, false));
-
-        //Calibration Button
-        Button calibrateButton = new Button(buttonComposite, SWT.PUSH);
-        calibrateButton.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true,
-                true, 1, 1));
-        calibrateButton.setText("Calibrate");
-        calibrateButton.addSelectionListener(new SelectionAdapter() {
-            @Override
-            public void widgetSelected(SelectionEvent e) {
-            	ITrace.getDefault().calibrateTracker();
-            }
-        });
         
         //Tracking start and stop button.
         final Button trackingButton = new Button(buttonComposite, SWT.PUSH);
         trackingButton.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true,
                 1, 1));
-        trackingButton.setText("Start Tracking");
+        trackingButton.setText("Connect to Server");
+        Point size = trackingButton.computeSize(SWT.DEFAULT, SWT.DEFAULT);
+        trackingButton.setSize(200, 50);
         trackingButton.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent e) {
             	ITrace.getDefault().setActionBars(getViewSite().getActionBars());
             	if(ITrace.getDefault().toggleTracking()){
-            		if(trackingButton.getText() == "Start Tracking"){
-            			trackingButton.setText("Stop Tracking");
+            		if(trackingButton.getText() == "Connect to Server"){
+            			trackingButton.setText("Disconnect from Server");
             			for (Control c : grayedControls) {
                             c.setEnabled(false);
                         }
             		}
                 	else{
-                		trackingButton.setText("Start Tracking");
+                		trackingButton.setText("Connect to Server");
                 		for (Control c : grayedControls) {
                             c.setEnabled(true);
                         }
@@ -132,17 +116,6 @@ public class ControlView extends ViewPart implements IPartListener2, EventHandle
             	
             }
         });
-        
-      //Session Info Button
-        final Button infoButton = new Button(buttonComposite, SWT.PUSH);
-        infoButton.setText("Session Info");
-        infoButton.addSelectionListener(new SelectionAdapter() {
-            @Override
-            public void widgetSelected(SelectionEvent e) {
-            	ITrace.getDefault().configureSessionInfo();
-            }
-        });  
-        grayedControls.addIfAbsent(infoButton);
         
         //Eye Status Button
         final Button statusButton = new Button(buttonComposite, SWT.PUSH);
@@ -184,51 +157,6 @@ public class ControlView extends ViewPart implements IPartListener2, EventHandle
             }
         });
 
-        final Composite driftComposite =
-                new Composite(tuningComposite, SWT.NONE);
-        driftComposite.setLayout(new GridLayout(2, false));
-
-        final Label xDriftLabel = new Label(driftComposite, SWT.NONE);
-        xDriftLabel.setText("x Drift");
-
-        final Spinner xDrift = new Spinner(driftComposite, SWT.NONE);
-        xDrift.addModifyListener(new ModifyListener() {
-            public void modifyText(ModifyEvent e) {
-                if (ITrace.getDefault().getTracker() != null) {
-                    ITrace.getDefault().setTrackerXDrift(xDrift.getSelection());
-                } else {
-                    if (xDrift.getSelection() != 0) {
-                        displayError(DONT_CHANGE_THAT_MSG);
-                        xDrift.setSelection(0);
-                    }
-                }
-            }
-        });
-        xDrift.setMinimum(-100);
-        xDrift.setMaximum(100);
-        xDrift.setSelection(0);
-        this.xDrift = xDrift;
-
-        final Label yDriftLabel = new Label(driftComposite, SWT.NONE);
-        yDriftLabel.setText("y Drift");
-
-        final Spinner yDrift = new Spinner(driftComposite, SWT.NONE);
-        yDrift.addModifyListener(new ModifyListener() {
-            public void modifyText(ModifyEvent e) {
-            	if (ITrace.getDefault().getTracker() != null) {
-            		ITrace.getDefault().setTrackerXDrift(xDrift.getSelection());
-                } else {
-                    if (yDrift.getSelection() != 0) {
-                        displayError(DONT_CHANGE_THAT_MSG);
-                        yDrift.setSelection(0);
-                    }
-                }
-            }
-        });
-        yDrift.setMinimum(-100);
-        yDrift.setMaximum(100);
-        yDrift.setSelection(0);
-        this.yDrift = yDrift;
         //Tuning composite end.
         
         //Solvers composite begin.
@@ -243,18 +171,11 @@ public class ControlView extends ViewPart implements IPartListener2, EventHandle
         jsonSolverEnabled.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent e) {
-               	if (ITrace.getDefault().sessionInfoConfigured()) {
                		if (jsonSolverEnabled.getSelection()) {
                			ITrace.getDefault().setJsonOutput(true);
                		} else {
                			ITrace.getDefault().setJsonOutput(false);
                		}
-               	} else {
-               		ITrace.getDefault().setJsonOutput(false);
-               		jsonSolverEnabled.setSelection(false);
-                	displayError("You must configure your Sesssion "
-               				+ "Info. first.");
-               	}
             }
         });
         grayedControls.addIfAbsent(jsonSolverEnabled);
@@ -263,12 +184,7 @@ public class ControlView extends ViewPart implements IPartListener2, EventHandle
         jsonSolverConfig.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent e) {
-             	if (ITrace.getDefault().sessionInfoConfigured()) {
                		ITrace.getDefault().displayJsonExportFile();
-               	} else {
-               		displayError("You must configure your Session Info. "
-               				+ "first.");
-               	}
             }
         });
         grayedControls.addIfAbsent(jsonSolverConfig);
@@ -280,18 +196,11 @@ public class ControlView extends ViewPart implements IPartListener2, EventHandle
        xmlSolverEnabled.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent e) {
-               	if (ITrace.getDefault().sessionInfoConfigured()) {
                		if (xmlSolverEnabled.getSelection()) {
                			ITrace.getDefault().setXmlOutput(true);
                		} else {
                			ITrace.getDefault().setXmlOutput(false);
                		}
-               	} else {
-               		ITrace.getDefault().setXmlOutput(false);
-               		xmlSolverEnabled.setSelection(false);
-               		displayError("You must configure your Sesssion "
-              				+ "Info. first.");
-             	}
            }
        });
        grayedControls.addIfAbsent(xmlSolverEnabled);
@@ -300,60 +209,18 @@ public class ControlView extends ViewPart implements IPartListener2, EventHandle
        xmlSolverConfig.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent e) {
-               	if (ITrace.getDefault().sessionInfoConfigured()) {
                		ITrace.getDefault().displayXmlExportFile();
-               	} else {
-               		displayError("You must configure your Session Info. "
-               				+ "first.");
-             	}
             }
        });
        grayedControls.addIfAbsent(xmlSolverConfig);
        //Solver Composite end. 
         
-        //Configure Filters Here
-        OldJSONBasicFixationFilter oldjsonBFFilter =
-        		new OldJSONBasicFixationFilter();
-        OldXMLBasicFixationFilter oldxmlBFFilter =
-        		new OldXMLBasicFixationFilter();
-        JSONBasicFixationFilter jsonBFFilter =
-        		new JSONBasicFixationFilter();
-        XMLBasicFixationFilter xmlBFFilter =
-        		new XMLBasicFixationFilter();
-        availableFilters.add(oldjsonBFFilter);
-        availableFilters.add(jsonBFFilter);
-        availableFilters.add(oldxmlBFFilter);
-        availableFilters.add(xmlBFFilter);
+    
         
         //Filter composite begin.
         final Composite filterComposite = new Composite(parent, SWT.NONE);
         filterComposite.setLayout(new GridLayout(2, false));
         
-        for (final IFilter filter: availableFilters) {
-        	final Button filterButton =
-        			new Button(filterComposite, SWT.PUSH);
-        	filterButton.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true,
-                	1, 1));
-        	filterButton.setText(filter.getFilterName());
-        	filterButton.addSelectionListener(new SelectionAdapter() {
-            	@Override
-            	public void widgetSelected(SelectionEvent e) {
-                	File[] fileList = filter.filterUI();
-                	if (fileList != null) {
-                		for (int i = 0; i < fileList.length; i++) {
-                			try {
-                				filter.read(fileList[i]);
-                				filter.process();
-                				filter.export();
-                			} catch(IOException exc) {
-                				displayError(exc.getMessage());
-                			}
-                		}
-                	}
-            	}
-        	});
-        	grayedControls.add(filterButton);
-        }
         //Filter composite end.
     }
 
@@ -491,10 +358,7 @@ public class ControlView extends ViewPart implements IPartListener2, EventHandle
         	//set up styled text manager if there is one
         	setupStyledText((IEditorPart) part, (StyledText) control);
         	
-        } else if (control instanceof Browser) {
-        	//set up browser manager if there is one
-        	setupBrowser((Browser) control);
-        }
+        } 
         //TODO: no control set up for a ProjectExplorer, since there isn't an need for 
         //a Manager right now, might be needed in the future
     }
@@ -511,19 +375,6 @@ public class ControlView extends ViewPart implements IPartListener2, EventHandle
             styledText.setData(KEY_AST, new AstManager(editor, styledText));
     }
 
-    /**
-     * Recursive helper method for setupControls(IWorkbenchPartReference).
-     * 
-     * @param editor IEditorPart which owns the Browser in the next
-     *               parameter.
-     * @param control browser to set up.
-     */
-    private void setupBrowser(Browser browser) {
-        if (browser.getData(KEY_SO_DOM) == null)
-            browser.setData(KEY_SO_DOM, new SOManager(browser));
-        if (browser.getData(KEY_BR_DOM) == null)
-        	browser.setData(KEY_BR_DOM, new BRManager(browser));
-    }
     
 
     private void displayError(String message) {
