@@ -153,10 +153,6 @@ public class ITrace extends AbstractUIPlugin implements EventHandler {
     	xmlSolver.displayExportFile();
     }
     
-    public boolean sessionInfoConfigured(){
-    	return sessionInfo.isConfigured();
-    }
-    
     public boolean connectToServer() {
         if (recording) {
             eventBroker.post("iTrace/error", "Tracking is already in progress.");
