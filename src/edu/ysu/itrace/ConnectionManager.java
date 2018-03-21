@@ -34,7 +34,14 @@ public class ConnectionManager {
 					try {
 						if(reader.ready()){
 							data = reader.readLine();
-							eventBroker.post("SocketData", data);
+							//eventBroker.post("SocketData", data);
+							String[] dataSplit = data.split(",");
+							double x = Double.parseDouble(dataSplit[1]);
+							double y = Double.parseDouble(dataSplit[2]);
+							long timestamp = Long.parseLong(dataSplit[0]);
+							Gaze gaze = new Gaze(x,x,y,y,0,0,0,0,timestamp);
+							eventBroker.post("iTrace/newgaze", gaze);
+							System.out.println(data);
 						}
 					} catch (IOException e) {
 						e.printStackTrace();
@@ -46,4 +53,13 @@ public class ConnectionManager {
 			ex.printStackTrace();
 		}
 	}
-}
+	
+	void endSocketConnection() {
+		try {
+			socket.close();
+		}
+		catch(Exception e) {
+			e.printStackTrace();
+		}
+		}
+	}

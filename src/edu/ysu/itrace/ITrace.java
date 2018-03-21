@@ -169,6 +169,7 @@ public class ITrace extends AbstractUIPlugin implements EventHandler {
         	eventBroker.post("iTrace/error", "Tracking is not in progress.");
             return false;
         }
+        connectionManager.endSocketConnection();
         eventBroker.unsubscribe(this);
         //xmlSolver.dispose();
         //jsonSolver.dispose();
