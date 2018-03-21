@@ -285,14 +285,20 @@ public class ITrace extends AbstractUIPlugin implements EventHandler {
 	            	 int screenX = (int) (g.getX() * monitorBounds.width);
 		             int screenY = (int) (g.getY() * monitorBounds.height);
 		             IGazeResponse response;
+		             System.out.println("Screen X: " + screenX + "ScreenY: " + screenY + " , " + g.getX() + " , " + g.getY());
 	            	 response = handleGaze(screenX, screenY, g);
 	            	 
+	            	 if (response == null) System.out.println("Response is null");
+	            	 
 	            	 if (response != null) {
+	            		 System.out.println("Response was not null");
 		                	 if(recording){
 		                		 statusLineManager
 		                 			.setMessage(String.valueOf(response.getGaze().getSessionTime()));
 		                 		registerTime = System.currentTimeMillis();
+		                 		System.out.println("I was inside recording");
 		                 		if(xmlOutput) eventBroker.post("iTrace/xmlOutput", response);
+		                 		System.out.println("So the event xmlOutput was posted");
 		                 		if(jsonOutput) eventBroker.post("iTrace/jsonOutput", response);
 		                	 }
 		                     
@@ -302,6 +308,7 @@ public class ITrace extends AbstractUIPlugin implements EventHandler {
 		                     }
 		             }
 		         }else{
+		        	 System.out.println("Response was null");
 		         	if((System.currentTimeMillis()-registerTime) > 2000){
 		         		statusLineManager.setMessage("");
 		         	}

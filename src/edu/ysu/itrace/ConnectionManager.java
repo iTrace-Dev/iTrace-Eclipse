@@ -11,6 +11,8 @@ import org.eclipse.swt.widgets.Canvas;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.PlatformUI;
+import edu.ysu.itrace.solvers.XMLGazeExportSolver;
+
 
 public class ConnectionManager {
 	private Socket socket;
@@ -40,8 +42,11 @@ public class ConnectionManager {
 							double y = Double.parseDouble(dataSplit[2]);
 							long timestamp = Long.parseLong(dataSplit[0]);
 							Gaze gaze = new Gaze(x,x,y,y,0,0,0,0,timestamp);
+							//System.out.println(gaze.getX() + " , " + gaze.getY() + " , " + gaze.getTimestamp() );
 							eventBroker.post("iTrace/newgaze", gaze);
-							System.out.println(data);
+							
+				
+							//System.out.println(data);
 						}
 					} catch (IOException e) {
 						e.printStackTrace();
