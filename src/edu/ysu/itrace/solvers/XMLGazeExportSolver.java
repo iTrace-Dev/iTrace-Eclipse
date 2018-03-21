@@ -203,9 +203,10 @@ public class XMLGazeExportSolver implements IFileExportSolver, EventHandler {
     
     @Override
     public void config(String sessionID, String devUsername) {
-    	filename = "gaze-responses-" + devUsername + "-"
-    			+ sessionID + ".xml";
-    	this.sessionID = sessionID;
+    	//filename = "gaze-responses-" + devUsername + "-"
+    		//	+ sessionID + ".xml";
+    	filename = "test.xml";
+    	//this.sessionID = sessionID;
     }
 
     @Override
@@ -213,7 +214,7 @@ public class XMLGazeExportSolver implements IFileExportSolver, EventHandler {
         String workspaceLocation =
                 ResourcesPlugin.getWorkspace().getRoot().getLocation()
                         .toString();
-        return workspaceLocation + "/" + sessionID + "/" + filename;
+        return workspaceLocation + "/" + filename;
     }
 
     @Override

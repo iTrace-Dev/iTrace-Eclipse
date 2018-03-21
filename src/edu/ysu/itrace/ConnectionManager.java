@@ -23,7 +23,7 @@ public class ConnectionManager {
 		timer = new Timer();
 		eventBroker = PlatformUI.getWorkbench().getService(IEventBroker.class);
 		try{
-			socket = new Socket("localhost", 8080);
+			socket = new Socket("localhost", 8008);
 			reader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
 			
 			timer.schedule(new TimerTask(){

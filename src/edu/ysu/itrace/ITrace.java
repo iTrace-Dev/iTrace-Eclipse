@@ -28,8 +28,6 @@ import org.osgi.framework.BundleContext;
 import org.osgi.service.event.Event;
 import org.osgi.service.event.EventHandler;
 
-import edu.ysu.itrace.exceptions.CalibrationException;
-import edu.ysu.itrace.exceptions.EyeTrackerConnectException;
 import edu.ysu.itrace.gaze.IGazeHandler;
 import edu.ysu.itrace.gaze.IGazeResponse;
 import edu.ysu.itrace.gaze.IStyledTextGazeResponse;
@@ -57,6 +55,7 @@ public class ITrace extends AbstractUIPlugin implements EventHandler {
     private XMLGazeExportSolver xmlSolver;
     private boolean jsonOutput = true;
     private boolean xmlOutput = true;
+    private ConnectionManager connectionManager;
     
     private IActionBars actionBars;
     private IStatusLineManager statusLineManager;
@@ -154,11 +153,13 @@ public class ITrace extends AbstractUIPlugin implements EventHandler {
     }
     
     public boolean connectToServer() {
+    	connectionManager = new ConnectionManager();
         if (recording) {
             eventBroker.post("iTrace/error", "Tracking is already in progress.");
             return recording;
         }
-        //eventBroker.subscribe("iTrace/newgaze", this);
+        eventBroker.subscribe("iTrace/newgaze", this);
+        // connectionManager.socket.onMessageRecievedEvent
         recording = true;
         return recording;
     }
@@ -168,9 +169,9 @@ public class ITrace extends AbstractUIPlugin implements EventHandler {
         	eventBroker.post("iTrace/error", "Tracking is not in progress.");
             return false;
         }
-        
-        xmlSolver.dispose();
-        jsonSolver.dispose();
+        eventBroker.unsubscribe(this);
+        //xmlSolver.dispose();
+        //jsonSolver.dispose();
         
         statusLineManager.setMessage("");
 
