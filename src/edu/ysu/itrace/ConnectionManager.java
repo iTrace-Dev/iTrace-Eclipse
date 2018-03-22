@@ -38,15 +38,21 @@ public class ConnectionManager {
 							data = reader.readLine();
 							//eventBroker.post("SocketData", data);
 							String[] dataSplit = data.split(",");
-							double x = Double.parseDouble(dataSplit[1]);
-							double y = Double.parseDouble(dataSplit[2]);
-							long timestamp = Long.parseLong(dataSplit[0]);
-							Gaze gaze = new Gaze(x,x,y,y,0,0,0,0,timestamp);
-							//System.out.println(gaze.getX() + " , " + gaze.getY() + " , " + gaze.getTimestamp() );
-							eventBroker.post("iTrace/newgaze", gaze);
-							
-				
-							//System.out.println(data);
+							try {
+								double x = Double.parseDouble(dataSplit[1]);
+								double y = Double.parseDouble(dataSplit[2]);
+								if (Double.isNaN(x) || Double.isNaN(y)) {
+									x = -1;
+									y = -1;
+								} 
+								long timestamp = Long.parseLong(dataSplit[0]);
+								Gaze gaze = new Gaze(x,x,y,y,0,0,0,0,timestamp);
+								//System.out.println(gaze.getX() + " , " + gaze.getY() + " , " + gaze.getTimestamp() );
+								eventBroker.post("iTrace/newgaze", gaze);
+							}
+							catch(Exception e) {
+								e.printStackTrace();
+							}	//System.out.println(data);
 						}
 					} catch (IOException e) {
 						e.printStackTrace();

@@ -251,8 +251,11 @@ public class ITrace extends AbstractUIPlugin implements EventHandler {
                 Rectangle childScreenBounds = child.getBounds();
                 Point screenPos = child.toDisplay(0, 0);
                 childScreenBounds.x = screenPos.x - monitorBounds.x;
+               // System.out.println("Child Screen Bounds x: " + childScreenBounds.x + "Screen Pos x: " + screenPos.x + "Monitor Bounds x: " + monitorBounds.x);
                 childScreenBounds.y = screenPos.y - monitorBounds.y;
+                System.out.println("Child Screen Bounds x: " + childScreenBounds.x + " Child screen Bounds y: " + childScreenBounds.y + " Screen pos x: " + screenX + " Screen pos y: " + screenY);
                 if (childScreenBounds.contains(screenX, screenY)) {
+                	System.out.println("Child screen contains the coordinates");
                     if (child instanceof Composite) {
                         Control[] nextChildren =
                                 ((Composite) child).getChildren();
@@ -263,6 +266,7 @@ public class ITrace extends AbstractUIPlugin implements EventHandler {
                     IGazeHandler handler =
                             (IGazeHandler) child
                                     .getData(HandlerBindManager.KEY_HANDLER);
+                    System.out.println("Was here after IgazeHandler is initialized");
                     if (child.isVisible() && handler != null) {
                         return handler.handleGaze(screenX, screenY,
                                 screenX - childScreenBounds.x, screenY
@@ -285,10 +289,10 @@ public class ITrace extends AbstractUIPlugin implements EventHandler {
 	            	 int screenX = (int) (g.getX() * monitorBounds.width);
 		             int screenY = (int) (g.getY() * monitorBounds.height);
 		             IGazeResponse response;
-		             System.out.println("Screen X: " + screenX + "ScreenY: " + screenY + " , " + g.getX() + " , " + g.getY());
+		             //System.out.println("Screen X: " + screenX + "ScreenY: " + screenY + " , " + g.getX() + " , " + g.getY());
 	            	 response = handleGaze(screenX, screenY, g);
 	            	 
-	            	 if (response == null) System.out.println("Response is null");
+	            	 //if (response == null) System.out.println("Response is null");
 	            	 
 	            	 if (response != null) {
 	            		 System.out.println("Response was not null");
@@ -308,7 +312,6 @@ public class ITrace extends AbstractUIPlugin implements EventHandler {
 		                     }
 		             }
 		         }else{
-		        	 System.out.println("Response was null");
 		         	if((System.currentTimeMillis()-registerTime) > 2000){
 		         		statusLineManager.setMessage("");
 		         	}

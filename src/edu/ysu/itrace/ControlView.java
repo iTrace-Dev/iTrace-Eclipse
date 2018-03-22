@@ -92,7 +92,7 @@ public class ControlView extends ViewPart implements IPartListener2, EventHandle
         final Button trackingButton = new Button(buttonComposite, SWT.PUSH);
         trackingButton.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true,
                 1, 1));
-        trackingButton.setText("Connect");
+        trackingButton.setText("Connect to server");
         Point size = trackingButton.computeSize(SWT.DEFAULT, SWT.DEFAULT);
         trackingButton.setSize(200, 50);
         trackingButton.addSelectionListener(new SelectionAdapter() {
@@ -100,14 +100,14 @@ public class ControlView extends ViewPart implements IPartListener2, EventHandle
             public void widgetSelected(SelectionEvent e) {
             	ITrace.getDefault().setActionBars(getViewSite().getActionBars());
             	if(ITrace.getDefault().toggleTracking()){
-            		if(trackingButton.getText() == "Connect"){
+            		if(trackingButton.getText() == "Connect to server"){
             			trackingButton.setText("Disconnect");
             			for (Control c : grayedControls) {
                             c.setEnabled(false);
                         }
             		}
                 	else{
-                		trackingButton.setText("Connect");
+                		trackingButton.setText("Connect to server");
                 		for (Control c : grayedControls) {
                             c.setEnabled(true);
                         }
