@@ -253,7 +253,7 @@ public class ITrace extends AbstractUIPlugin implements EventHandler {
                 childScreenBounds.x = screenPos.x - monitorBounds.x;
                // System.out.println("Child Screen Bounds x: " + childScreenBounds.x + "Screen Pos x: " + screenPos.x + "Monitor Bounds x: " + monitorBounds.x);
                 childScreenBounds.y = screenPos.y - monitorBounds.y;
-                System.out.println("Child Screen Bounds x: " + childScreenBounds.x + " Child screen Bounds y: " + childScreenBounds.y + " Screen pos x: " + screenX + " Screen pos y: " + screenY);
+                //System.out.println("Child Screen Bounds x: " + childScreenBounds.x + " Child screen Bounds y: " + childScreenBounds.y + " Screen pos x: " + screenX + " Screen pos y: " + screenY);
                 if (childScreenBounds.contains(screenX, screenY)) {
                 	System.out.println("Child screen contains the coordinates");
                     if (child instanceof Composite) {
@@ -311,6 +311,7 @@ public class ITrace extends AbstractUIPlugin implements EventHandler {
 		                     	eventBroker.post("iTrace/newstresponse", styledTextResponse);
 		                     }
 		             }
+	            	 //if(xmlOutput) eventBroker.post("iTrace/xmlOutput", response);
 		         }else{
 		         	if((System.currentTimeMillis()-registerTime) > 2000){
 		         		statusLineManager.setMessage("");

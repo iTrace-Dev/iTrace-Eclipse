@@ -38,6 +38,10 @@ public class ConnectionManager {
 							data = reader.readLine();
 							//eventBroker.post("SocketData", data);
 							String[] dataSplit = data.split(",");
+							if(dataSplit[1] == "-nan(ind)" || dataSplit[2] == "-nan(ind)") {
+								dataSplit[1] = "-1";
+								dataSplit[2] = "-1";
+							}
 							try {
 								double x = Double.parseDouble(dataSplit[1]);
 								double y = Double.parseDouble(dataSplit[2]);
