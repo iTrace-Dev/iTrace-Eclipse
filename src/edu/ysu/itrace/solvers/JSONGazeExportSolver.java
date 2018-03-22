@@ -24,6 +24,7 @@ import com.google.gson.stream.JsonWriter;
 import edu.ysu.itrace.AstManager.SourceCodeEntity;
 import edu.ysu.itrace.gaze.IGazeResponse;
 import edu.ysu.itrace.gaze.IStyledTextGazeResponse;
+import edu.ysu.itrace.Gaze;
 
 /**
  * Solver that simply dumps gaze data to disk in JSON format.
@@ -91,8 +92,8 @@ public class JSONGazeExportSolver implements IFileExportSolver, EventHandler {
     }
 
     @Override
-    public void process(IGazeResponse response) {
-        try {
+    public void process(Gaze gaze /*IGazeResponse response*/) {
+       /* try {
                 int screenX =
                         (int) (screenRect.width * response.getGaze().getX());
                 int screenY =
@@ -174,7 +175,7 @@ public class JSONGazeExportSolver implements IFileExportSolver, EventHandler {
                 responseWriter.endObject();
         } catch (IOException e) {
             // ignore write errors
-        }
+        }*/
     }
 
     @Override
@@ -236,6 +237,6 @@ public class JSONGazeExportSolver implements IFileExportSolver, EventHandler {
 		if(outFile == null) this.init();
 		String[] propertyNames = event.getPropertyNames();
 		IGazeResponse response = (IGazeResponse)event.getProperty(propertyNames[0]);
-		this.process(response);
+		//this.process(response);
 	}
 }

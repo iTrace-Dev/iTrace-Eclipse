@@ -25,6 +25,7 @@ import org.osgi.service.event.EventHandler;
 import edu.ysu.itrace.AstManager.SourceCodeEntity;
 import edu.ysu.itrace.gaze.IGazeResponse;
 import edu.ysu.itrace.gaze.IStyledTextGazeResponse;
+import edu.ysu.itrace.Gaze;
 
 /**
  * Solver that simply dumps gaze data to disk in XML format.
@@ -99,32 +100,37 @@ public class XMLGazeExportSolver implements IFileExportSolver, EventHandler {
     }
 
     @Override
-    public void process(IGazeResponse response) {
+    public void process(Gaze gaze/*IGazeResponse response*/) {
         try {
-                int screenX =
+                /*int screenX =
                         (int) (screenRect.width * response.getGaze().getX());
                 int screenY =
-                        (int) (screenRect.height * response.getGaze().getY());
+                        (int) (screenRect.height * response.getGaze().getY());*/
+                
+                int screenX = 
+                		(int) (screenRect.width * gaze.getX());
+                int screenY =
+                		(int) (screenRect.width * gaze.getY());
 
                 responseWriter.writeStartElement("response");
-                responseWriter.writeAttribute("name", response.getName());
-                responseWriter.writeAttribute("type", response.getGazeType());
+                //responseWriter.writeAttribute("name", response.getName());
+                //responseWriter.writeAttribute("type", response.getGazeType());
                 responseWriter.writeAttribute("x", String.valueOf(screenX));
                 responseWriter.writeAttribute("y", String.valueOf(screenY));
-                responseWriter.writeAttribute("left_validation",
+                /*responseWriter.writeAttribute("left_validation",
                         String.valueOf(response.getGaze().getLeftValidity()));
-                responseWriter.writeAttribute("right_validation",
+                  responseWriter.writeAttribute("right_validation",
                         String.valueOf(response.getGaze().getRightValidity()));
-                responseWriter.writeAttribute("left_pupil_diameter",
+                  responseWriter.writeAttribute("left_pupil_diameter",
                         String.valueOf(response.getGaze()
                                        .getLeftPupilDiameter()));
-                responseWriter.writeAttribute("right_pupil_diameter",
+                  responseWriter.writeAttribute("right_pupil_diameter",
                         String.valueOf(response.getGaze()
                                        .getRightPupilDiameter()));
-                responseWriter.writeAttribute(
+                  responseWriter.writeAttribute(
                         "timestamp",
                         String.valueOf(response.getGaze().getTimestamp()));
-                responseWriter.writeAttribute(
+               responseWriter.writeAttribute(
                         "session_time",
                         String.valueOf(response.getGaze().getSessionTime()));
                 responseWriter.writeAttribute(
@@ -170,13 +176,13 @@ public class XMLGazeExportSolver implements IFileExportSolver, EventHandler {
                         responseWriter.writeAttribute("end_col",
                                 String.valueOf(sce.endCol));
                         responseWriter.writeEndElement();
-                    }
+                    }*/
                     responseWriter.writeEndElement();
 
-                } 
+              /*  } 
                 else {
                 	//ignore anything else
-                }
+                }*/
                 responseWriter.writeEndElement();
                 responseWriter.writeCharacters(EOL);
         } catch (XMLStreamException e) {
@@ -249,7 +255,10 @@ public class XMLGazeExportSolver implements IFileExportSolver, EventHandler {
 		System.out.println("Was here at init()");
 		if(outFile == null) this.init();
 		String[] propertyNames = event.getPropertyNames();
-		IGazeResponse response = (IGazeResponse)event.getProperty(propertyNames[0]);
-		this.process(response);
+		//IGazeResponse response = (IGazeResponse)event.getProperty(propertyNames[0]);
+		//this.process(response);
+		Gaze gaze = (Gaze)event.getProperty(propertyNames[0]);
+		this.process(gaze);
+		
 	}
 }

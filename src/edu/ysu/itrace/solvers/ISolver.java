@@ -1,6 +1,7 @@
 package edu.ysu.itrace.solvers;
 
 import edu.ysu.itrace.gaze.IGazeResponse;
+import edu.ysu.itrace.Gaze;
 
 /**
  * Defines a minimal interface for passing data to a solver.
@@ -35,7 +36,7 @@ public interface ISolver {
     /**
      * Called to process new gazes.
      */
-    public void process(IGazeResponse response);
+    public void process(Gaze gaze /*IGazeResponse response*/);
 
     /**
      * Frees any resources. It is very likely a bad idea to process new data

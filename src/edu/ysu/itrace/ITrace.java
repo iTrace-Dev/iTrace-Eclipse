@@ -171,8 +171,8 @@ public class ITrace extends AbstractUIPlugin implements EventHandler {
         }
         connectionManager.endSocketConnection();
         eventBroker.unsubscribe(this);
-        //xmlSolver.dispose();
-        //jsonSolver.dispose();
+        xmlSolver.dispose();
+        jsonSolver.dispose();
         
         statusLineManager.setMessage("");
 
@@ -311,7 +311,7 @@ public class ITrace extends AbstractUIPlugin implements EventHandler {
 		                     	eventBroker.post("iTrace/newstresponse", styledTextResponse);
 		                     }
 		             }
-	            	 //if(xmlOutput) eventBroker.post("iTrace/xmlOutput", response);
+	            	 if(xmlOutput) eventBroker.post("iTrace/xmlOutput", g);
 		         }else{
 		         	if((System.currentTimeMillis()-registerTime) > 2000){
 		         		statusLineManager.setMessage("");
