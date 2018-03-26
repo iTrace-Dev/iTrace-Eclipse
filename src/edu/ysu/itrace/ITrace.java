@@ -6,6 +6,7 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.Queue;
+import javax.swing.JWindow;
 
 import org.eclipse.e4.core.services.events.IEventBroker;
 import org.eclipse.jface.action.IStatusLineManager;
@@ -29,6 +30,7 @@ import org.osgi.service.event.Event;
 import org.osgi.service.event.EventHandler;
 
 import edu.ysu.itrace.gaze.IGazeHandler;
+import edu.ysu.itrace.CrossHairWindow;
 import edu.ysu.itrace.gaze.IGazeResponse;
 import edu.ysu.itrace.gaze.IStyledTextGazeResponse;
 import edu.ysu.itrace.solvers.ISolver;
@@ -62,7 +64,7 @@ public class ITrace extends AbstractUIPlugin implements EventHandler {
     private long registerTime = 2000;
     private IEventBroker eventBroker;
     private SessionInfoHandler sessionInfo = new SessionInfoHandler();
-    
+    private JWindow crosshairWindow = new CrossHairWindow();
     private Shell rootShell;
     
     /**
@@ -187,7 +189,8 @@ public class ITrace extends AbstractUIPlugin implements EventHandler {
     
     public boolean displayCrosshair(boolean display){
         	//tracker.displayCrosshair(display); //Need to think of a way to display crosshair
-        	return display;
+        connectionManager.displayReticle(display);	
+    	return display;
     }
     
     public void setActiveEditor(IEditorPart editorPart){

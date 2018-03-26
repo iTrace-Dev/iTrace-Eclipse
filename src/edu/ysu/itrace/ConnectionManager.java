@@ -3,6 +3,7 @@ package edu.ysu.itrace;
 import java.io.*;
 import java.net.*;
 import java.util.*;
+import javax.swing.JWindow;
 import org.eclipse.e4.core.services.events.IEventBroker;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.PaintEvent;
@@ -11,6 +12,7 @@ import org.eclipse.swt.widgets.Canvas;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.PlatformUI;
+import edu.ysu.itrace.CrossHairWindow;
 import edu.ysu.itrace.solvers.XMLGazeExportSolver;
 
 
@@ -20,7 +22,8 @@ public class ConnectionManager {
 	private String data = "";
 	private Timer timer;
 	private IEventBroker eventBroker;
-	
+	private JWindow crosshairWindow = new CrossHairWindow();
+	private boolean crossHairDisplay = false;
 	ConnectionManager(){
 		timer = new Timer();
 		eventBroker = PlatformUI.getWorkbench().getService(IEventBroker.class);
@@ -51,6 +54,7 @@ public class ConnectionManager {
 								} 
 								long timestamp = Long.parseLong(dataSplit[0]);
 								Gaze gaze = new Gaze(x,x,y,y,0,0,0,0,timestamp);
+								if (crossHairDisplay == true) crosshairWindow.setLocation((int)x, (int)y);
 								System.out.println(gaze.getX() + " , " + gaze.getY() + " , " + gaze.getTimestamp() );
 								eventBroker.post("iTrace/newgaze", gaze);
 							}
@@ -69,6 +73,10 @@ public class ConnectionManager {
 		}
 	}
 	
+	public void displayReticle(boolean display) {
+		crosshairWindow.setVisible(display);	
+		crossHairDisplay = display;	
+	}
 	void endSocketConnection() {
 		try {
 			socket.close();
