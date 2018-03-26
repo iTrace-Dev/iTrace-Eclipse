@@ -45,7 +45,7 @@ public class XMLGazeExportSolver implements IFileExportSolver, EventHandler {
     public XMLGazeExportSolver() {
     	UIManager.put("swing.boldMetal", new Boolean(false)); //make UI font plain
     	eventBroker = PlatformUI.getWorkbench().getService(IEventBroker.class);
-    	eventBroker.subscribe("iTrace/newdata", this);
+    	//eventBroker.subscribe("iTrace/newdata", this);
     }
     
     @Override
@@ -53,7 +53,6 @@ public class XMLGazeExportSolver implements IFileExportSolver, EventHandler {
         screenRect = Toolkit.getDefaultToolkit().getScreenSize();
         try {
         	outFile = new File(getFilename());
-            System.out.println("Was here, set filename");
             
             // Check that file does not already exist. If it does, do not begin
             // tracking.
@@ -107,16 +106,16 @@ public class XMLGazeExportSolver implements IFileExportSolver, EventHandler {
                 int screenY =
                         (int) (screenRect.height * response.getGaze().getY());*/
                 
-                int screenX = 
-                		(int) (screenRect.width * gaze.getX());
-                int screenY =
-                		(int) (screenRect.width * gaze.getY());
+                //int screenX = 
+                	//	(int) (screenRect.width * gaze.getX());
+                //int screenY =
+                	//	(int) (screenRect.width * gaze.getY());
 
                 responseWriter.writeStartElement("response");
                 //responseWriter.writeAttribute("name", response.getName());
                 //responseWriter.writeAttribute("type", response.getGazeType());
-                responseWriter.writeAttribute("x", String.valueOf(screenX));
-                responseWriter.writeAttribute("y", String.valueOf(screenY));
+                responseWriter.writeAttribute("x", String.valueOf(gaze.getX()));
+                responseWriter.writeAttribute("y", String.valueOf(gaze.getY()));
                 /*responseWriter.writeAttribute("left_validation",
                         String.valueOf(response.getGaze().getLeftValidity()));
                   responseWriter.writeAttribute("right_validation",
@@ -252,13 +251,22 @@ public class XMLGazeExportSolver implements IFileExportSolver, EventHandler {
 
 	@Override
 	public void handleEvent(Event event) {
-		System.out.println("Was here at init()");
 		if(outFile == null) this.init();
 		String[] propertyNames = event.getPropertyNames();
 		//IGazeResponse response = (IGazeResponse)event.getProperty(propertyNames[0]);
 		//this.process(response);
 		Gaze gaze = (Gaze)event.getProperty(propertyNames[0]);
-		this.process(gaze);
+		try {
+		responseWriter.writeStartElement("response");
+		responseWriter.writeAttribute("x", String.valueOf(gaze.getX()));
+        responseWriter.writeAttribute("y", String.valueOf(gaze.getY()));
+        responseWriter.writeEndElement();
+        responseWriter.writeCharacters(EOL);
+		}catch(XMLStreamException e) {
+			e.printStackTrace();
+		}
+		//System.out.println("I am writing values");
+		//this.process(gaze);
 		
 	}
 }

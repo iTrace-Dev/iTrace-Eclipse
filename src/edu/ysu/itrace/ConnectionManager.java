@@ -51,7 +51,7 @@ public class ConnectionManager {
 								} 
 								long timestamp = Long.parseLong(dataSplit[0]);
 								Gaze gaze = new Gaze(x,x,y,y,0,0,0,0,timestamp);
-								//System.out.println(gaze.getX() + " , " + gaze.getY() + " , " + gaze.getTimestamp() );
+								System.out.println(gaze.getX() + " , " + gaze.getY() + " , " + gaze.getTimestamp() );
 								eventBroker.post("iTrace/newgaze", gaze);
 							}
 							catch(Exception e) {

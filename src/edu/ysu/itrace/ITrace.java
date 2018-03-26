@@ -158,7 +158,7 @@ public class ITrace extends AbstractUIPlugin implements EventHandler {
             eventBroker.post("iTrace/error", "Tracking is already in progress.");
             return recording;
         }
-        eventBroker.subscribe("iTrace/newgaze", this);
+        //eventBroker.subscribe("iTrace/newgaze", this);
         // connectionManager.socket.onMessageRecievedEvent
         recording = true;
         return recording;
@@ -171,8 +171,8 @@ public class ITrace extends AbstractUIPlugin implements EventHandler {
         }
         connectionManager.endSocketConnection();
         eventBroker.unsubscribe(this);
-        xmlSolver.dispose();
-        jsonSolver.dispose();
+        //xmlSolver.dispose();
+        //jsonSolver.dispose();
         
         statusLineManager.setMessage("");
 
@@ -311,7 +311,19 @@ public class ITrace extends AbstractUIPlugin implements EventHandler {
 		                     	eventBroker.post("iTrace/newstresponse", styledTextResponse);
 		                     }
 		             }
-	            	 if(xmlOutput) eventBroker.post("iTrace/xmlOutput", g);
+	            	 
+	            	 if (recording) {
+	            		statusLineManager
+	            		.setMessage(String.valueOf(g.getSessionTime()));
+	            		registerTime = System.currentTimeMillis();
+	            		if(xmlOutput) eventBroker.post("iTrace/xmlOutput", g);	
+	            		try {
+	                        Thread.sleep(25);
+	                    } catch (InterruptedException e) {
+	                        //Just try again.
+	                    }
+	            	 }
+	            	 //if(xmlOutput) eventBroker.post("iTrace/xmlOutput", g);
 		         }else{
 		         	if((System.currentTimeMillis()-registerTime) > 2000){
 		         		statusLineManager.setMessage("");
