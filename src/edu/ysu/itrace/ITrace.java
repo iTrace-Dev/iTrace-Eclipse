@@ -63,7 +63,6 @@ public class ITrace extends AbstractUIPlugin implements EventHandler {
     private IStatusLineManager statusLineManager;
     private long registerTime = 2000;
     private IEventBroker eventBroker;
-    private SessionInfoHandler sessionInfo = new SessionInfoHandler();
     private JWindow crosshairWindow = new CrossHairWindow();
     private Shell rootShell;
     
