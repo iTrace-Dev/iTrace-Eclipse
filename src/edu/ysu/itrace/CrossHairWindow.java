@@ -18,7 +18,7 @@ public class CrossHairWindow extends JWindow{
 			Graphics2D g2d = (Graphics2D)g;
 			g2d.setStroke(new BasicStroke(3));
 			super.paintComponent(g);
-			g2d.setColor(new Color(255,0,0,255));
+			g2d.setColor(new Color(0,0,255,255));
 			g2d.drawOval(getX()+3, getY()+3, 12, 12);
 		}
 	}

@@ -41,6 +41,7 @@ public class XMLGazeExportSolver implements IFileExportSolver, EventHandler {
     private Dimension screenRect;
     private String sessionID;
     private IEventBroker eventBroker;
+    public boolean disconnected = false;
 
     public XMLGazeExportSolver() {
     	UIManager.put("swing.boldMetal", new Boolean(false)); //make UI font plain
@@ -260,11 +261,32 @@ public class XMLGazeExportSolver implements IFileExportSolver, EventHandler {
 		responseWriter.writeStartElement("response");
 		responseWriter.writeAttribute("x", String.valueOf(gaze.getX()));
         responseWriter.writeAttribute("y", String.valueOf(gaze.getY()));
+        responseWriter.writeAttribute(
+                "session_time", String.valueOf(gaze.getTimestamp()));
         responseWriter.writeEndElement();
         responseWriter.writeCharacters(EOL);
 		}catch(XMLStreamException e) {
 			e.printStackTrace();
 		}
+		/*if(disconnected) {
+			 try {
+		            responseWriter.writeEndElement();
+		            responseWriter.writeCharacters(EOL);
+		            responseWriter.writeEndElement();
+		            responseWriter.writeCharacters(EOL);
+		            responseWriter.writeEndDocument();
+		            responseWriter.writeCharacters(EOL);
+		            responseWriter.flush();
+		            responseWriter.close();
+		            System.out.println("Gaze responses saved.");
+		        } catch (XMLStreamException e) {
+		            throw new RuntimeException("Log file footer could not be written: "
+		                    + e.getMessage());
+		        }
+		        //outFile = null;
+			
+		}
+		disconnected = false;*/
 		//System.out.println("I am writing values");
 		//this.process(gaze);
 		
