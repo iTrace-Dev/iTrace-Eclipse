@@ -147,13 +147,13 @@ public class ControlView extends ViewPart implements IPartListener2, EventHandle
         	}
         });
         
-        final Button displayCrosshair = new Button(tuningComposite, SWT.CHECK);
-        displayCrosshair.setText("Display Crosshair");
-        displayCrosshair.addSelectionListener(new SelectionAdapter() {
+        final Button displayGazeCursor = new Button(tuningComposite, SWT.CHECK);
+        displayGazeCursor.setText("Display Gaze Cursor");
+        displayGazeCursor.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent e) {
-            	boolean success = ITrace.getDefault().displayCrosshair(displayCrosshair.getSelection());
-            	if(success != displayCrosshair.getSelection()) displayCrosshair.setSelection(false);
+            	boolean success = ITrace.getDefault().displayGazeCursor(displayGazeCursor.getSelection());
+            	if(success != displayGazeCursor.getSelection()) displayGazeCursor.setSelection(false);
             }
         });
 

@@ -12,7 +12,7 @@ import org.eclipse.swt.widgets.Canvas;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.PlatformUI;
-import edu.ysu.itrace.CrossHairWindow;
+import edu.ysu.itrace.GazeCursorWindow;
 import edu.ysu.itrace.solvers.XMLGazeExportSolver;
 
 
@@ -22,8 +22,11 @@ public class ConnectionManager {
 	private String data = "";
 	private Timer timer;
 	private IEventBroker eventBroker;
-	private JWindow crosshairWindow = new CrossHairWindow();
-	private boolean crossHairDisplay = false;
+	private JWindow gazeCursorWindow = new GazeCursorWindow();
+	private boolean gazeCursorDisplay = false;
+	private int counter = 0;
+	private int totalX = 0;
+	private int totalY = 0;
 	ConnectionManager(){
 		timer = new Timer();
 		eventBroker = PlatformUI.getWorkbench().getService(IEventBroker.class);
@@ -54,7 +57,20 @@ public class ConnectionManager {
 								} 
 								long timestamp = Long.parseLong(dataSplit[0]);
 								Gaze gaze = new Gaze(x,x,y,y,0,0,0,0,timestamp);
-								if (crossHairDisplay == true) crosshairWindow.setLocation((int)x, (int)y);
+								if (gazeCursorDisplay == true) {
+									counter++;
+									totalX += x;
+									totalY += y;
+									if(counter == 5) {
+										int avgX = totalX/5;
+										int avgY = totalY/5;
+										totalX = 0;
+										totalY = 0;
+										counter = 0;
+										//crosshairWindow.setLocation((int)x, (int)y);
+										gazeCursorWindow.setLocation(avgX, avgY);
+									}
+								}
 								System.out.println(gaze.getX() + " , " + gaze.getY() + " , " + gaze.getTimestamp() );
 								eventBroker.post("iTrace/newgaze", gaze);
 							}
@@ -73,9 +89,9 @@ public class ConnectionManager {
 		}
 	}
 	
-	public void displayReticle(boolean display) {
-		crosshairWindow.setVisible(display);	
-		crossHairDisplay = display;	
+	public void showGazeCursor(boolean display) {
+		gazeCursorWindow.setVisible(display);	
+		gazeCursorDisplay = display;	
 	}
 	void endSocketConnection() {
 		try {

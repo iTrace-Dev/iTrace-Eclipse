@@ -30,7 +30,7 @@ import org.osgi.service.event.Event;
 import org.osgi.service.event.EventHandler;
 
 import edu.ysu.itrace.gaze.IGazeHandler;
-import edu.ysu.itrace.CrossHairWindow;
+import edu.ysu.itrace.GazeCursorWindow;
 import edu.ysu.itrace.gaze.IGazeResponse;
 import edu.ysu.itrace.gaze.IStyledTextGazeResponse;
 import edu.ysu.itrace.solvers.ISolver;
@@ -63,7 +63,7 @@ public class ITrace extends AbstractUIPlugin implements EventHandler {
     private IStatusLineManager statusLineManager;
     private long registerTime = 2000;
     private IEventBroker eventBroker;
-    private JWindow crosshairWindow = new CrossHairWindow();
+    private JWindow crosshairWindow = new GazeCursorWindow();
     private Shell rootShell;
     
     /**
@@ -187,9 +187,9 @@ public class ITrace extends AbstractUIPlugin implements EventHandler {
     	else return connectToServer();
     }
     
-    public boolean displayCrosshair(boolean display){
+    public boolean displayGazeCursor(boolean display){
         	//tracker.displayCrosshair(display); //Need to think of a way to display crosshair
-        connectionManager.displayReticle(display);	
+        connectionManager.showGazeCursor(display);	
     	return display;
     }
     
