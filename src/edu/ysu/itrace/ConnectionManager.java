@@ -14,7 +14,7 @@ import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.PlatformUI;
 import edu.ysu.itrace.GazeCursorWindow;
 import edu.ysu.itrace.solvers.XMLGazeExportSolver;
-
+import org.eclipse.swt.graphics.Point;
 
 public class ConnectionManager {
 	private Socket socket;
@@ -27,6 +27,7 @@ public class ConnectionManager {
 	private int counter = 0;
 	private int totalX = 0;
 	private int totalY = 0;
+	private Point centre = new Point(8,8);
 	ConnectionManager(){
 		timer = new Timer();
 		eventBroker = PlatformUI.getWorkbench().getService(IEventBroker.class);
@@ -58,17 +59,19 @@ public class ConnectionManager {
 								long timestamp = Long.parseLong(dataSplit[0]);
 								Gaze gaze = new Gaze(x,x,y,y,0,0,0,0,timestamp);
 								if (gazeCursorDisplay == true) {
+									if (x < 0 || y < 0) return;
 									counter++;
 									totalX += x;
 									totalY += y;
-									if(counter == 5) {
-										int avgX = totalX/5;
-										int avgY = totalY/5;
+									//gazeCursorWindow.setLocation((int)x, (int)y);
+									if(counter == 10) {
+										int avgX = totalX/10;
+										int avgY = totalY/10;
 										totalX = 0;
 										totalY = 0;
 										counter = 0;
 										//crosshairWindow.setLocation((int)x, (int)y);
-										gazeCursorWindow.setLocation(avgX, avgY);
+										gazeCursorWindow.setLocation(avgX- centre.x, avgY - centre.y);
 									}
 								}
 								System.out.println(gaze.getX() + " , " + gaze.getY() + " , " + gaze.getTimestamp() );

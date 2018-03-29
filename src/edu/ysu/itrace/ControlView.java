@@ -148,7 +148,7 @@ public class ControlView extends ViewPart implements IPartListener2, EventHandle
         });
         
         final Button displayGazeCursor = new Button(tuningComposite, SWT.CHECK);
-        displayGazeCursor.setText("Display Gaze Cursor");
+        displayGazeCursor.setText("Display Reticle");
         displayGazeCursor.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent e) {

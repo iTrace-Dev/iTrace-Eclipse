@@ -262,13 +262,13 @@ public class XMLGazeExportSolver implements IFileExportSolver, EventHandler {
 		responseWriter.writeAttribute("x", String.valueOf(gaze.getX()));
         responseWriter.writeAttribute("y", String.valueOf(gaze.getY()));
         responseWriter.writeAttribute(
-                "session_time", String.valueOf(gaze.getTimestamp()));
+                "session_time", String.valueOf(gaze.getTrackerTime()));
         responseWriter.writeEndElement();
         responseWriter.writeCharacters(EOL);
 		}catch(XMLStreamException e) {
 			e.printStackTrace();
 		}
-		/*if(disconnected) {
+		if(disconnected) {
 			 try {
 		            responseWriter.writeEndElement();
 		            responseWriter.writeCharacters(EOL);
@@ -286,7 +286,7 @@ public class XMLGazeExportSolver implements IFileExportSolver, EventHandler {
 		        //outFile = null;
 			
 		}
-		disconnected = false;*/
+		disconnected = false;
 		//System.out.println("I am writing values");
 		//this.process(gaze);
 		
