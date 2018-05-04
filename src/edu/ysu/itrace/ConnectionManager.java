@@ -45,18 +45,18 @@ public class ConnectionManager {
 							data = reader.readLine();
 							//eventBroker.post("SocketData", data);
 							String[] dataSplit = data.split(",");
-							if(dataSplit[1] == "-nan(ind)" || dataSplit[2] == "-nan(ind)") {
-								dataSplit[1] = "-1";
+							if(dataSplit[2] == "-nan(ind)" || dataSplit[3] == "-nan(ind)") {
 								dataSplit[2] = "-1";
+								dataSplit[3] = "-1";
 							}
 							try {
-								double x = Double.parseDouble(dataSplit[1]);
-								double y = Double.parseDouble(dataSplit[2]);
+								double x = Double.parseDouble(dataSplit[2]);
+								double y = Double.parseDouble(dataSplit[3]);
 								if (Double.isNaN(x) || Double.isNaN(y)) {
 									x = -1;
 									y = -1;
 								} 
-								long timestamp = Long.parseLong(dataSplit[0]);
+								long timestamp = Long.parseLong(dataSplit[1]);
 								Gaze gaze = new Gaze(x,x,y,y,0,0,0,0,timestamp);
 								if (gazeCursorDisplay == true) {
 									if (x < 0 || y < 0) return;
@@ -74,7 +74,7 @@ public class ConnectionManager {
 										gazeCursorWindow.setLocation(avgX- centre.x, avgY - centre.y);
 									}
 								}
-								System.out.println(gaze.getX() + " , " + gaze.getY() + " , " + gaze.getTimestamp() );
+								//System.out.println(gaze.getX() + " , " + gaze.getY() + " , " + gaze.getTimestamp() );
 								eventBroker.post("iTrace/newgaze", gaze);
 							}
 							catch(Exception e) {

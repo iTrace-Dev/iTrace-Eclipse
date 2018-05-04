@@ -98,7 +98,7 @@ public class ITrace extends AbstractUIPlugin implements EventHandler {
     public void start(BundleContext context) throws Exception {
         super.start(context);
         plugin = this;
-        IPreferenceStore prefStore = getDefault().getPreferenceStore();
+        //IPreferenceStore prefStore = getDefault().getPreferenceStore();
         activeEditor = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage().getActiveEditor();
     }
 
@@ -288,11 +288,11 @@ public class ITrace extends AbstractUIPlugin implements EventHandler {
 			Gaze g = (Gaze)event.getProperty(propertyNames[0]);
 			 if (g != null) {
 	             if(!rootShell.isDisposed()){
-	            	 Rectangle monitorBounds = rootShell.getMonitor().getBounds();
-	            	 int screenX = (int) (g.getX() * monitorBounds.width);
-		             int screenY = (int) (g.getY() * monitorBounds.height);
+	            	 Rectangle monitorBounds = rootShell.getMonitor().getBounds(); //Probably not needed...
+	            	 int screenX = (int) (g.getX());
+		             int screenY = (int) (g.getY());
 		             IGazeResponse response;
-		             //System.out.println("Screen X: " + screenX + "ScreenY: " + screenY + " , " + g.getX() + " , " + g.getY());
+		             System.out.println("Screen X: " + screenX + "ScreenY: " + screenY + " - (" + g.getX() + " , " + g.getY() + ")");
 	            	 response = handleGaze(screenX, screenY, g);
 	            	 
 	            	 //if (response == null) System.out.println("Response is null");
