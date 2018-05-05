@@ -258,7 +258,6 @@ public class ITrace extends AbstractUIPlugin implements EventHandler {
                 childScreenBounds.y = screenPos.y - monitorBounds.y;
                 //System.out.println("Child Screen Bounds x: " + childScreenBounds.x + " Child screen Bounds y: " + childScreenBounds.y + " Screen pos x: " + screenX + " Screen pos y: " + screenY);
                 if (childScreenBounds.contains(screenX, screenY)) {
-                	System.out.println("Child screen contains the coordinates");
                     if (child instanceof Composite) {
                         Control[] nextChildren =
                                 ((Composite) child).getChildren();
@@ -269,7 +268,6 @@ public class ITrace extends AbstractUIPlugin implements EventHandler {
                     IGazeHandler handler =
                             (IGazeHandler) child
                                     .getData(HandlerBindManager.KEY_HANDLER);
-                    System.out.println("Was here after IgazeHandler is initialized");
                     if (child.isVisible() && handler != null) {
                         return handler.handleGaze(screenX, screenY,
                                 screenX - childScreenBounds.x, screenY
@@ -291,8 +289,8 @@ public class ITrace extends AbstractUIPlugin implements EventHandler {
 	            	 Rectangle monitorBounds = rootShell.getMonitor().getBounds(); //Probably not needed...
 	            	 int screenX = (int) (g.getX());
 		             int screenY = (int) (g.getY());
+		             //System.out.println("Screen Gaze X: " + screenX + " Screen Gaze Y: " + screenY);
 		             IGazeResponse response;
-		             System.out.println("Screen X: " + screenX + "ScreenY: " + screenY + " - (" + g.getX() + " , " + g.getY() + ")");
 	            	 response = handleGaze(screenX, screenY, g);
 	            	 
 	            	 //if (response == null) System.out.println("Response is null");
@@ -303,10 +301,9 @@ public class ITrace extends AbstractUIPlugin implements EventHandler {
 		                		 statusLineManager
 		                 			.setMessage(String.valueOf(response.getGaze().getSessionTime()));
 		                 		registerTime = System.currentTimeMillis();
-		                 		System.out.println("I was inside recording");
+		                 		System.out.println("OK");
 		                 		if(xmlOutput) eventBroker.post("iTrace/xmlOutput", response);
-		                 		System.out.println("So the event xmlOutput was posted");
-		                 		if(jsonOutput) eventBroker.post("iTrace/jsonOutput", response);
+		                 		//if(jsonOutput) eventBroker.post("iTrace/jsonOutput", response);
 		                	 }
 		                     
 		                     if(response instanceof IStyledTextGazeResponse && response != null && showTokenHighlights){
@@ -315,7 +312,7 @@ public class ITrace extends AbstractUIPlugin implements EventHandler {
 		                     }
 		             }
 	            	 
-	            	 if (recording) {
+	            	 /*if (recording) {
 	            		statusLineManager
 	            		.setMessage(String.valueOf(g.getSessionTime()));
 	            		registerTime = System.currentTimeMillis();
@@ -325,7 +322,7 @@ public class ITrace extends AbstractUIPlugin implements EventHandler {
 	                    } catch (InterruptedException e) {
 	                        //Just try again.
 	                    }
-	            	 }
+	            	 }*/
 	            	 //if(xmlOutput) eventBroker.post("iTrace/xmlOutput", g);
 		         }else{
 		         	if((System.currentTimeMillis()-registerTime) > 2000){

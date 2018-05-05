@@ -254,17 +254,55 @@ public class XMLGazeExportSolver implements IFileExportSolver, EventHandler {
 	public void handleEvent(Event event) {
 		if(outFile == null) this.init();
 		String[] propertyNames = event.getPropertyNames();
-		//IGazeResponse response = (IGazeResponse)event.getProperty(propertyNames[0]);
+		IGazeResponse response = (IGazeResponse)event.getProperty(propertyNames[0]);
 		//this.process(response);
-		Gaze gaze = (Gaze)event.getProperty(propertyNames[0]);
+		//Gaze gaze = (Gaze)event.getProperty(propertyNames[0]);
 		try {
 		responseWriter.writeStartElement("response");
-		responseWriter.writeAttribute("x", String.valueOf(gaze.getX()));
-        responseWriter.writeAttribute("y", String.valueOf(gaze.getY()));
+		responseWriter.writeAttribute("name", response.getName());
+        responseWriter.writeAttribute("type", response.getGazeType());
+		responseWriter.writeAttribute("x", String.valueOf(response.getGaze().getX()));
+        responseWriter.writeAttribute("y", String.valueOf(response.getGaze().getY()));
         responseWriter.writeAttribute(
-                "session_time", String.valueOf(gaze.getTrackerTime()));
+                "session_time", String.valueOf(response.getGaze().getTrackerTime()));
         responseWriter.writeEndElement();
         responseWriter.writeCharacters(EOL);
+        if (response instanceof IStyledTextGazeResponse) {
+            IStyledTextGazeResponse styledResponse =
+                    (IStyledTextGazeResponse) response;
+            responseWriter.writeAttribute("path", styledResponse.getPath());
+            responseWriter.writeAttribute("line_height",
+                    String.valueOf(styledResponse.getLineHeight()));
+            responseWriter.writeAttribute("font_height",
+                    String.valueOf(styledResponse.getFontHeight()));
+            responseWriter.writeAttribute("line",
+                    String.valueOf(styledResponse.getLine()));
+            responseWriter.writeAttribute("col",
+                    String.valueOf(styledResponse.getCol()));
+            responseWriter.writeAttribute("line_base_x",
+                    String.valueOf(styledResponse.getLineBaseX()));
+            responseWriter.writeAttribute("line_base_y",
+                    String.valueOf(styledResponse.getLineBaseY()));
+            responseWriter.writeStartElement("sces");
+            for (SourceCodeEntity sce : styledResponse.getSCEs()) {
+                responseWriter.writeStartElement("sce");
+                responseWriter.writeAttribute("name", sce.getName());
+                responseWriter.writeAttribute("type", sce.type.toString());
+                responseWriter.writeAttribute("how", sce.how.toString());
+                responseWriter.writeAttribute("total_length",
+                        String.valueOf(sce.totalLength));
+                responseWriter.writeAttribute("start_line",
+                        String.valueOf(sce.startLine));
+                responseWriter.writeAttribute("end_line",
+                        String.valueOf(sce.endLine));
+                responseWriter.writeAttribute("start_col",
+                        String.valueOf(sce.startCol));
+                responseWriter.writeAttribute("end_col",
+                        String.valueOf(sce.endCol));
+                responseWriter.writeEndElement();
+            }
+
+		}
 		}catch(XMLStreamException e) {
 			e.printStackTrace();
 		}

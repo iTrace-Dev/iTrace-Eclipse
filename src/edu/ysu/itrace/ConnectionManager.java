@@ -74,7 +74,6 @@ public class ConnectionManager {
 										gazeCursorWindow.setLocation(avgX- centre.x, avgY - centre.y);
 									}
 								}
-								//System.out.println(gaze.getX() + " , " + gaze.getY() + " , " + gaze.getTimestamp() );
 								eventBroker.post("iTrace/newgaze", gaze);
 							}
 							catch(Exception e) {
