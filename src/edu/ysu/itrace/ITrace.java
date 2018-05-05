@@ -172,8 +172,8 @@ public class ITrace extends AbstractUIPlugin implements EventHandler {
         }
         connectionManager.endSocketConnection();
         eventBroker.unsubscribe(this);
-        xmlSolver.disconnected = true;
-        //xmlSolver.dispose();
+        //xmlSolver.disconnected = true;
+        xmlSolver.dispose();
         //jsonSolver.dispose();
         
         statusLineManager.setMessage("");

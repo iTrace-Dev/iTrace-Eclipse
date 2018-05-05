@@ -107,42 +107,14 @@ public class XMLGazeExportSolver implements IFileExportSolver, EventHandler {
                 int screenY =
                         (int) (screenRect.height * response.getGaze().getY());
                 
-                //int screenX = 
-                	//	(int) (screenRect.width * gaze.getX());
-                //int screenY =
-                	//	(int) (screenRect.width * gaze.getY());
-
                 responseWriter.writeStartElement("response");
-                //responseWriter.writeAttribute("name", response.getName());
-                //responseWriter.writeAttribute("type", response.getGazeType());
+                responseWriter.writeAttribute("name", response.getName());
+                responseWriter.writeAttribute("type", response.getGazeType());
                 responseWriter.writeAttribute("x", String.valueOf(response.getGaze().getX()));
                 responseWriter.writeAttribute("y", String.valueOf(response.getGaze().getY()));
-                /*responseWriter.writeAttribute("left_validation",
-                        String.valueOf(response.getGaze().getLeftValidity()));
-                  responseWriter.writeAttribute("right_validation",
-                        String.valueOf(response.getGaze().getRightValidity()));
-                  responseWriter.writeAttribute("left_pupil_diameter",
-                        String.valueOf(response.getGaze()
-                                       .getLeftPupilDiameter()));
-                  responseWriter.writeAttribute("right_pupil_diameter",
-                        String.valueOf(response.getGaze()
-                                       .getRightPupilDiameter()));*/
-                  responseWriter.writeAttribute(
+                responseWriter.writeAttribute(
                         "timestamp",
                         String.valueOf(response.getGaze().getTimestamp()));
-              /* responseWriter.writeAttribute(
-                        "session_time",
-                        String.valueOf(response.getGaze().getSessionTime()));
-                responseWriter.writeAttribute(
-                        "tracker_time",
-                        String.valueOf(response.getGaze().getTrackerTime()));
-                responseWriter.writeAttribute(
-                        "system_time",
-                        String.valueOf(response.getGaze().getSystemTime()));
-                responseWriter.writeAttribute(
-                        "nano_time",
-                        String.valueOf(response.getGaze().getNanoTime()));
-*/
                 if (response instanceof IStyledTextGazeResponse) {
                     IStyledTextGazeResponse styledResponse =
                             (IStyledTextGazeResponse) response;
@@ -272,12 +244,9 @@ public class XMLGazeExportSolver implements IFileExportSolver, EventHandler {
 		            throw new RuntimeException("Log file footer could not be written: "
 		                    + e.getMessage());
 		        }
-		        //outFile = null;
 			
 		}
 		disconnected = false;
-		//System.out.println("I am writing values");
-		//this.process(gaze);
 		
 	}
 }
