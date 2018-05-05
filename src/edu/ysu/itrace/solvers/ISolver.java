@@ -36,7 +36,7 @@ public interface ISolver {
     /**
      * Called to process new gazes.
      */
-    public void process(Gaze gaze /*IGazeResponse response*/);
+    public void process(IGazeResponse response);
 
     /**
      * Frees any resources. It is very likely a bad idea to process new data

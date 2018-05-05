@@ -85,9 +85,9 @@ public class ITrace extends AbstractUIPlugin implements EventHandler {
     	*/
     	eventBroker = PlatformUI.getWorkbench().getService(IEventBroker.class);
     	eventBroker.subscribe("iTrace/newgaze", this);
-    	jsonSolver = new JSONGazeExportSolver();
+    	//jsonSolver = new JSONGazeExportSolver();
     	xmlSolver = new XMLGazeExportSolver();
-    	eventBroker.subscribe("iTrace/jsonOutput", jsonSolver);
+    	//eventBroker.subscribe("iTrace/jsonOutput", jsonSolver);
     	eventBroker.subscribe("iTrace/xmlOutput", xmlSolver);
     }
 
@@ -253,10 +253,8 @@ public class ITrace extends AbstractUIPlugin implements EventHandler {
             for (Control child : childrenQueue.remove()) {
                 Rectangle childScreenBounds = child.getBounds();
                 Point screenPos = child.toDisplay(0, 0);
-                childScreenBounds.x = screenPos.x;
-               // System.out.println("Child Screen Bounds x: " + childScreenBounds.x + "Screen Pos x: " + screenPos.x + "Monitor Bounds x: " + monitorBounds.x);
-                childScreenBounds.y = screenPos.y;
-                //System.out.println("Child Screen Bounds x: " + childScreenBounds.x + " Child screen Bounds y: " + childScreenBounds.y + " Screen pos x: " + screenX + " Screen pos y: " + screenY);
+                childScreenBounds.x = screenPos.x - monitorBounds.x;
+                childScreenBounds.y = screenPos.y - monitorBounds.y;
                 if (childScreenBounds.contains(screenX, screenY)) {
                     if (child instanceof Composite) {
                         Control[] nextChildren =
@@ -280,41 +278,39 @@ public class ITrace extends AbstractUIPlugin implements EventHandler {
     }
     
     @Override
-	public void handleEvent(Event event) {
-		if(event.getTopic() == "iTrace/newgaze"){
-			String[] propertyNames = event.getPropertyNames();
-			Gaze g = (Gaze)event.getProperty(propertyNames[0]);
-			 if (g != null) {
-	             if(!rootShell.isDisposed()){
-	            	 Rectangle monitorBounds = rootShell.getMonitor().getBounds(); //Probably not needed...
-	            	 int screenX = (int) (g.getX());
-		             int screenY = (int) (g.getY());
-		             //System.out.println("Screen Gaze X: " + screenX + " Screen Gaze Y: " + screenY);
-		             IGazeResponse response;
-	            	 response = handleGaze(screenX, screenY, g);
-	            	 
-	            	 //if (response == null) System.out.println("Response is null");
-	            	 
-	            	 if (response != null) {
-		                	 if(recording){
-		                		 statusLineManager
-		                 			.setMessage(String.valueOf(response.getGaze().getSessionTime()));
-		                 		registerTime = System.currentTimeMillis();
-		                 		if(xmlOutput) eventBroker.post("iTrace/xmlOutput", response);
-		                	 }
-		                     
-		                     if(response instanceof IStyledTextGazeResponse && response != null){
-		                     	IStyledTextGazeResponse styledTextResponse = (IStyledTextGazeResponse)response;
-		                     	eventBroker.post("iTrace/newstresponse", styledTextResponse);
-		                     }
-		             }
-	            	 
-		         }else{
-		         	if((System.currentTimeMillis()-registerTime) > 2000){
-		         		statusLineManager.setMessage("");
-		         	}
-		         }
-	         }
-		}
-	}
+   	public void handleEvent(Event event) {
+   		if(event.getTopic() == "iTrace/newgaze"){
+   			String[] propertyNames = event.getPropertyNames();
+   			Gaze g = (Gaze)event.getProperty(propertyNames[0]);
+   			 if (g != null) {
+   	             if(!rootShell.isDisposed()){
+   	            	 Rectangle monitorBounds = rootShell.getMonitor().getBounds();
+   	            	 int screenX = (int) (g.getX());
+   		             int screenY = (int) (g.getY());
+   		             IGazeResponse response;
+   	            	 response = handleGaze(screenX, screenY, g);
+   	            	 
+   	            	 if (response != null) {
+   		                	 if(recording){
+   		                		 statusLineManager
+   		                 			.setMessage(String.valueOf(response.getGaze().getSessionTime()));
+   		                 		registerTime = System.currentTimeMillis();
+   		                 		if(xmlOutput) eventBroker.post("iTrace/xmlOutput", response);
+   		                 		if(jsonOutput) eventBroker.post("iTrace/jsonOutput", response);
+   		                	 }
+   		                     
+   		                     if(response instanceof IStyledTextGazeResponse && response != null && showTokenHighlights){
+   		                     	IStyledTextGazeResponse styledTextResponse = (IStyledTextGazeResponse)response;
+   		                     	System.out.println("I am here");
+   		                     	eventBroker.post("iTrace/newstresponse", styledTextResponse);
+   		                     }
+   		             }
+   		         }else{
+   		         	if((System.currentTimeMillis()-registerTime) > 2000){
+   		         		statusLineManager.setMessage("");
+   		         	}
+   		         }
+   	         }
+   		}
+   	}
 }

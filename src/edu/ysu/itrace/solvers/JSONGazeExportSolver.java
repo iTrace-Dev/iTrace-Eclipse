@@ -92,7 +92,7 @@ public class JSONGazeExportSolver implements IFileExportSolver, EventHandler {
     }
 
     @Override
-    public void process(Gaze gaze /*IGazeResponse response*/) {
+    public void process(IGazeResponse response) {
        /* try {
                 int screenX =
                         (int) (screenRect.width * response.getGaze().getX());

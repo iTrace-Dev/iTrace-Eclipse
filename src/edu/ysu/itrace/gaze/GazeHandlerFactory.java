@@ -26,7 +26,7 @@ public class GazeHandlerFactory {
                 partRef instanceof IEditorReference) {
             return new StyledTextGazeHandler(target); //can go back to using partRef
         
-        }  else if (target instanceof Tree &&
+        } else if (target instanceof Tree &&
         		partRef instanceof IViewReference &&
         		partRef.getTitle().equals("Project Explorer")) {
         	//create gaze handler for a Project Explorer Tree

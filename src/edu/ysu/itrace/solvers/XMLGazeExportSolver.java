@@ -100,12 +100,12 @@ public class XMLGazeExportSolver implements IFileExportSolver, EventHandler {
     }
 
     @Override
-    public void process(Gaze gaze/*IGazeResponse response*/) {
+    public void process(IGazeResponse response) {
         try {
-                /*int screenX =
+                int screenX =
                         (int) (screenRect.width * response.getGaze().getX());
                 int screenY =
-                        (int) (screenRect.height * response.getGaze().getY());*/
+                        (int) (screenRect.height * response.getGaze().getY());
                 
                 //int screenX = 
                 	//	(int) (screenRect.width * gaze.getX());
@@ -115,8 +115,8 @@ public class XMLGazeExportSolver implements IFileExportSolver, EventHandler {
                 responseWriter.writeStartElement("response");
                 //responseWriter.writeAttribute("name", response.getName());
                 //responseWriter.writeAttribute("type", response.getGazeType());
-                responseWriter.writeAttribute("x", String.valueOf(gaze.getX()));
-                responseWriter.writeAttribute("y", String.valueOf(gaze.getY()));
+                responseWriter.writeAttribute("x", String.valueOf(response.getGaze().getX()));
+                responseWriter.writeAttribute("y", String.valueOf(response.getGaze().getY()));
                 /*responseWriter.writeAttribute("left_validation",
                         String.valueOf(response.getGaze().getLeftValidity()));
                   responseWriter.writeAttribute("right_validation",
@@ -126,11 +126,11 @@ public class XMLGazeExportSolver implements IFileExportSolver, EventHandler {
                                        .getLeftPupilDiameter()));
                   responseWriter.writeAttribute("right_pupil_diameter",
                         String.valueOf(response.getGaze()
-                                       .getRightPupilDiameter()));
+                                       .getRightPupilDiameter()));*/
                   responseWriter.writeAttribute(
                         "timestamp",
                         String.valueOf(response.getGaze().getTimestamp()));
-               responseWriter.writeAttribute(
+              /* responseWriter.writeAttribute(
                         "session_time",
                         String.valueOf(response.getGaze().getSessionTime()));
                 responseWriter.writeAttribute(
@@ -142,7 +142,7 @@ public class XMLGazeExportSolver implements IFileExportSolver, EventHandler {
                 responseWriter.writeAttribute(
                         "nano_time",
                         String.valueOf(response.getGaze().getNanoTime()));
-
+*/
                 if (response instanceof IStyledTextGazeResponse) {
                     IStyledTextGazeResponse styledResponse =
                             (IStyledTextGazeResponse) response;
@@ -176,13 +176,13 @@ public class XMLGazeExportSolver implements IFileExportSolver, EventHandler {
                         responseWriter.writeAttribute("end_col",
                                 String.valueOf(sce.endCol));
                         responseWriter.writeEndElement();
-                    }*/
+                    }
                     responseWriter.writeEndElement();
 
-              /*  } 
+               } 
                 else {
                 	//ignore anything else
-                }*/
+                }
                 responseWriter.writeEndElement();
                 responseWriter.writeCharacters(EOL);
         } catch (XMLStreamException e) {
@@ -255,58 +255,8 @@ public class XMLGazeExportSolver implements IFileExportSolver, EventHandler {
 		if(outFile == null) this.init();
 		String[] propertyNames = event.getPropertyNames();
 		IGazeResponse response = (IGazeResponse)event.getProperty(propertyNames[0]);
-		//this.process(response);
-		//Gaze gaze = (Gaze)event.getProperty(propertyNames[0]);
-		try {
-		responseWriter.writeStartElement("response");
-		responseWriter.writeAttribute("name", response.getName());
-        responseWriter.writeAttribute("type", response.getGazeType());
-		responseWriter.writeAttribute("x", String.valueOf(response.getGaze().getX()));
-        responseWriter.writeAttribute("y", String.valueOf(response.getGaze().getY()));
-        responseWriter.writeAttribute(
-                "session_time", String.valueOf(response.getGaze().getTrackerTime()));
-        
-        responseWriter.writeEndElement();
-        responseWriter.writeCharacters(EOL);
-        if (response instanceof IStyledTextGazeResponse) {
-            IStyledTextGazeResponse styledResponse =
-                    (IStyledTextGazeResponse) response;
-            responseWriter.writeAttribute("path", styledResponse.getPath());
-            responseWriter.writeAttribute("line_height",
-                    String.valueOf(styledResponse.getLineHeight()));
-            responseWriter.writeAttribute("font_height",
-                    String.valueOf(styledResponse.getFontHeight()));
-            responseWriter.writeAttribute("line",
-                    String.valueOf(styledResponse.getLine()));
-            responseWriter.writeAttribute("col",
-                    String.valueOf(styledResponse.getCol()));
-            responseWriter.writeAttribute("line_base_x",
-                    String.valueOf(styledResponse.getLineBaseX()));
-            responseWriter.writeAttribute("line_base_y",
-                    String.valueOf(styledResponse.getLineBaseY()));
-            responseWriter.writeStartElement("sces");
-            for (SourceCodeEntity sce : styledResponse.getSCEs()) {
-                responseWriter.writeStartElement("sce");
-                responseWriter.writeAttribute("name", sce.getName());
-                responseWriter.writeAttribute("type", sce.type.toString());
-                responseWriter.writeAttribute("how", sce.how.toString());
-                responseWriter.writeAttribute("total_length",
-                        String.valueOf(sce.totalLength));
-                responseWriter.writeAttribute("start_line",
-                        String.valueOf(sce.startLine));
-                responseWriter.writeAttribute("end_line",
-                        String.valueOf(sce.endLine));
-                responseWriter.writeAttribute("start_col",
-                        String.valueOf(sce.startCol));
-                responseWriter.writeAttribute("end_col",
-                        String.valueOf(sce.endCol));
-                responseWriter.writeEndElement();
-            }
-
-		}
-		}catch(XMLStreamException e) {
-			e.printStackTrace();
-		}
+		this.process(response);
+	
 		if(disconnected) {
 			 try {
 		            responseWriter.writeEndElement();
