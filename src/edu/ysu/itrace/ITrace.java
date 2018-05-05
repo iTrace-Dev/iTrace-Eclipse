@@ -159,8 +159,6 @@ public class ITrace extends AbstractUIPlugin implements EventHandler {
             eventBroker.post("iTrace/error", "Tracking is already in progress.");
             return recording;
         }
-        //eventBroker.subscribe("iTrace/newgaze", this);
-        // connectionManager.socket.onMessageRecievedEvent
         recording = true;
         return recording;
     }
@@ -172,12 +170,8 @@ public class ITrace extends AbstractUIPlugin implements EventHandler {
         }
         connectionManager.endSocketConnection();
         eventBroker.unsubscribe(this);
-        //xmlSolver.disconnected = true;
         xmlSolver.dispose();
-        //jsonSolver.dispose();
-        
         statusLineManager.setMessage("");
-
         recording = false;
         return true;
     }
@@ -188,7 +182,6 @@ public class ITrace extends AbstractUIPlugin implements EventHandler {
     }
     
     public boolean displayGazeCursor(boolean display){
-        	//tracker.displayCrosshair(display); //Need to think of a way to display crosshair
         connectionManager.showGazeCursor(display);	
     	return display;
     }
