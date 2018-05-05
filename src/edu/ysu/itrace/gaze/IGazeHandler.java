@@ -17,4 +17,5 @@ public interface IGazeHandler {
      */
     public IGazeResponse handleGaze(int absoluteX, int absoluteY,
             int relativeX, int relativeY, Gaze gaze);
+    
 }

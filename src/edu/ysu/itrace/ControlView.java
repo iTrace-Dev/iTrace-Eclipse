@@ -117,18 +117,6 @@ public class ControlView extends ViewPart implements IPartListener2, EventHandle
             }
         });
         
-        //Eye Status Button
-        final Button statusButton = new Button(buttonComposite, SWT.PUSH);
-        statusButton.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true,
-                1, 1));
-        statusButton.setText("Eye Status");
-        statusButton.addSelectionListener(new SelectionAdapter() {
-            @Override
-            public void widgetSelected(SelectionEvent e) {
-            	ITrace.getDefault().displayEyeStatus();
-            }
-        });
-        //Button Composite End.
         
         final String DONT_CHANGE_THAT_MSG =
                 "Don't change this value until "

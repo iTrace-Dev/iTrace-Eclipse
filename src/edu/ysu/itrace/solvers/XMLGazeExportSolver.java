@@ -265,6 +265,7 @@ public class XMLGazeExportSolver implements IFileExportSolver, EventHandler {
         responseWriter.writeAttribute("y", String.valueOf(response.getGaze().getY()));
         responseWriter.writeAttribute(
                 "session_time", String.valueOf(response.getGaze().getTrackerTime()));
+        
         responseWriter.writeEndElement();
         responseWriter.writeCharacters(EOL);
         if (response instanceof IStyledTextGazeResponse) {
