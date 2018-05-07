@@ -44,8 +44,9 @@ public class ConnectionManager {
 						if(reader.ready()){
 							data = reader.readLine();
 							//eventBroker.post("SocketData", data);
+							System.out.println(data);
 							String[] dataSplit = data.split(",");
-							if(dataSplit[2] == "-nan(ind)" || dataSplit[3] == "-nan(ind)") {
+							if(dataSplit[2].toLowerCase().contains("nan") || dataSplit[3].toLowerCase().contains("nan")) {
 								dataSplit[2] = "-1";
 								dataSplit[3] = "-1";
 							}
