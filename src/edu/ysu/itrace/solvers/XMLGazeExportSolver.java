@@ -77,22 +77,39 @@ public class XMLGazeExportSolver implements IFileExportSolver, EventHandler {
         System.out.println("Putting files at " + outFile.getAbsolutePath());
 
         try {
-            responseWriter.writeStartDocument("utf-8", "1.0");
+        	// Setup start of XML doc (UTF-8 and version 1.0)
+        	responseWriter.writeStartDocument();
             responseWriter.writeCharacters(EOL);
-            responseWriter.writeStartElement("itrace-records");
+            
+            // Show that data is from a plugin
+            responseWriter.writeStartElement("plugin");
             responseWriter.writeCharacters(EOL);
+            
+            // Record environment data
             responseWriter.writeStartElement("environment");
             responseWriter.writeCharacters(EOL);
+            
+            // Screen Dimensions
             responseWriter.writeEmptyElement("screen-size");
             responseWriter.writeAttribute("width",
                     String.valueOf(screenRect.width));
             responseWriter.writeAttribute("height",
                     String.valueOf(screenRect.height));
             responseWriter.writeCharacters(EOL);
+            
+            // Plugin Type
+            responseWriter.writeEmptyElement("application");
+            responseWriter.writeAttribute("type", "eclipse");
+            responseWriter.writeCharacters(EOL);
+            
+            // End Environment
             responseWriter.writeEndElement();
             responseWriter.writeCharacters(EOL);
+            
+            // Start Gaze Data Section
             responseWriter.writeStartElement("gazes");
             responseWriter.writeCharacters(EOL);
+            
         } catch (Exception e) {
             throw new RuntimeException("Log file header could not be written: "
                     + e.getMessage());
@@ -112,9 +129,10 @@ public class XMLGazeExportSolver implements IFileExportSolver, EventHandler {
                 responseWriter.writeAttribute("type", response.getGazeType());
                 responseWriter.writeAttribute("x", String.valueOf(response.getGaze().getX()));
                 responseWriter.writeAttribute("y", String.valueOf(response.getGaze().getY()));
-                responseWriter.writeAttribute(
-                        "timestamp",
+                responseWriter.writeAttribute("timestamp",
                         String.valueOf(response.getGaze().getTimestamp()));
+                responseWriter.writeAttribute("event_time", response.getGaze().getEventID());
+                
                 if (response instanceof IStyledTextGazeResponse) {
                     IStyledTextGazeResponse styledResponse =
                             (IStyledTextGazeResponse) response;

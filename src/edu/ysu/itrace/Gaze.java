@@ -21,12 +21,13 @@ public class Gaze {
     private int nanoseconds;
     private Timestamp timestamp;
     private String timestampString;
+    private String eventID;
 
 
     public Gaze(double left_x, double right_x, double left_y, double right_y,
                 double left_validity, double right_validity,
                 double left_pupil_diameter, double right_pupil_diameter,
-                long trackerTime) {
+                long trackerTime, String event) {
         this.left_x = left_x;
         this.right_x = right_x;
 
@@ -39,6 +40,9 @@ public class Gaze {
         this.trackerTime = trackerTime;
         this.left_validity = left_validity;
         this.right_validity = right_validity;
+        
+        // Unique ID used to link plugin responses with core responses
+        eventID = event;
         
         calendar.setTimeInMillis(systemTime);
         nanoseconds = (int) (nanoTime%1000000000);
@@ -113,5 +117,8 @@ public class Gaze {
     }
     public String getTimestamp(){
     	return timestampString;
+    }
+    public String getEventID() {
+    	return eventID;
     }
 }

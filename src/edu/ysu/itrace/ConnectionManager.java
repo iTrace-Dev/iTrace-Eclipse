@@ -5,18 +5,21 @@ import java.net.*;
 import java.util.*;
 import javax.swing.JWindow;
 import org.eclipse.e4.core.services.events.IEventBroker;
+import org.eclipse.ui.PlatformUI;
+import edu.ysu.itrace.GazeCursorWindow;
+import org.eclipse.swt.graphics.Point;
+
+//Don't seem to be in use
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.PaintEvent;
 import org.eclipse.swt.events.PaintListener;
 import org.eclipse.swt.widgets.Canvas;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Shell;
-import org.eclipse.ui.PlatformUI;
-import edu.ysu.itrace.GazeCursorWindow;
 import edu.ysu.itrace.solvers.XMLGazeExportSolver;
-import org.eclipse.swt.graphics.Point;
 
 public class ConnectionManager {
+	
 	private Socket socket;
 	private BufferedReader reader;
 	private String data = "";
@@ -28,6 +31,7 @@ public class ConnectionManager {
 	private int totalX = 0;
 	private int totalY = 0;
 	private Point centre = new Point(8,8);
+	
 	ConnectionManager(){
 		timer = new Timer();
 		eventBroker = PlatformUI.getWorkbench().getService(IEventBroker.class);
@@ -39,25 +43,35 @@ public class ConnectionManager {
 
 				@Override
 				public void run() {
-					
 					try {
 						if(reader.ready()){
 							data = reader.readLine();
 							//eventBroker.post("SocketData", data);
 							String[] dataSplit = data.split(",");
+							
+							// For now ignore the session data to prevent crash
+							if (dataSplit[0].equalsIgnoreCase("session")) {
+								System.out.println(data);
+								return;
+							}
+							
 							if(dataSplit[2].toLowerCase().contains("nan") || dataSplit[3].toLowerCase().contains("nan")) {
 								dataSplit[2] = "-1";
 								dataSplit[3] = "-1";
 							}
+							
 							try {
 								double x = Double.parseDouble(dataSplit[2]);
 								double y = Double.parseDouble(dataSplit[3]);
+								
 								if (Double.isNaN(x) || Double.isNaN(y)) {
 									x = -1;
 									y = -1;
 								} 
+								
 								long timestamp = Long.parseLong(dataSplit[1]);
-								Gaze gaze = new Gaze(x,x,y,y,0,0,0,0,timestamp);
+								Gaze gaze = new Gaze(x,x,y,y,0,0,0,0,timestamp, dataSplit[1]);
+								
 								if (gazeCursorDisplay == true) {
 									if (x < 0 || y < 0) return;
 									counter++;
@@ -80,12 +94,13 @@ public class ConnectionManager {
 								e.printStackTrace();
 							}	//System.out.println(data);
 						}
+						
 					} catch (IOException e) {
 						e.printStackTrace();
 					}		
 				}
 				
-			}, 0,10);
+			}, 0,1);
 		}catch(IOException ex){
 			ex.printStackTrace();
 		}
