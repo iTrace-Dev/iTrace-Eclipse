@@ -1,16 +1,9 @@
 package edu.ysu.itrace.gaze;
 
-import edu.ysu.itrace.AstManager.SourceCodeEntity;
-
 /**
  * Defines an interface for gazes falling on StyledText widgets 
  */
 public interface IStyledTextGazeResponse extends IGazeResponse {
-	/**
-	 * Returns a list of SCEs, sorted from most to least specific, under the gaze
-	 */
-    public SourceCodeEntity[] getSCEs();
-
     /**
      * Return the OS dependent path of the file in the editor
      */

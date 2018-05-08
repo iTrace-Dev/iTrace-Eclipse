@@ -34,7 +34,6 @@ public class StyledTextGazeHandler implements IGazeHandler {
         final String name;
         final int lineHeight;
         final int fontHeight;
-        final AstManager.SourceCodeEntity[] entities;
         final String path;
         
 
@@ -43,10 +42,12 @@ public class StyledTextGazeHandler implements IGazeHandler {
             		return null;
             AstManager astManager = (AstManager) targetStyledText
             		.getData(ControlView.KEY_AST);
+            
             //projectionViewer = astManager.getProjectionViewer();
             lineIndex = targetStyledText.getLineIndex(relativeY);
             int lineOffset = targetStyledText.getOffsetAtLine(lineIndex);
             //int lineOffset = targetStyledText.getOffsetAtLine(targetStyledText.getLineIndex(relativeY));
+            
             int offset;
             try{
             	offset = targetStyledText.getOffsetAtLocation(new Point(relativeX, relativeY));
@@ -60,10 +61,12 @@ public class StyledTextGazeHandler implements IGazeHandler {
             // coordinates.
             Point relativeRoot = new Point(absoluteX - relativeX, absoluteY
                     - relativeY);
+            
             // Top-left position of the first character on the line in
             // relative coordinates.
             Point lineAnchorPosition = targetStyledText
                     .getLocationAtOffset(lineOffset);
+            
             // To absolute.
             absoluteLineAnchorPosition = new Point(lineAnchorPosition.x
                     + relativeRoot.x, lineAnchorPosition.y + relativeRoot.y);
@@ -71,7 +74,7 @@ public class StyledTextGazeHandler implements IGazeHandler {
             lineHeight = targetStyledText.getLineHeight();
             fontHeight = targetStyledText.getFont().getFontData()[0]
                     .getHeight();
-            entities = astManager.getSCEs(lineIndex + 1, col);
+            
             path = astManager.getPath();
             int splitLength = path.split("\\\\").length;
             name = path.split("\\\\")[splitLength-1];
@@ -147,11 +150,6 @@ public class StyledTextGazeHandler implements IGazeHandler {
             @Override
             public int getLineBaseY() {
                 return absoluteLineAnchorPosition.y;
-            }
-
-            @Override
-            public SourceCodeEntity[] getSCEs() {
-                return entities;
             }
 
             @Override

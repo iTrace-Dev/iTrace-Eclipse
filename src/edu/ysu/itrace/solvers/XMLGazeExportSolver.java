@@ -22,7 +22,6 @@ import org.eclipse.ui.PlatformUI;
 import org.osgi.service.event.Event;
 import org.osgi.service.event.EventHandler;
 
-import edu.ysu.itrace.AstManager.SourceCodeEntity;
 import edu.ysu.itrace.gaze.IGazeResponse;
 import edu.ysu.itrace.gaze.IStyledTextGazeResponse;
 import edu.ysu.itrace.Gaze;
@@ -118,12 +117,7 @@ public class XMLGazeExportSolver implements IFileExportSolver, EventHandler {
 
     @Override
     public void process(IGazeResponse response) {
-        try {
-                int screenX =
-                        (int) (screenRect.width * response.getGaze().getX());
-                int screenY =
-                        (int) (screenRect.height * response.getGaze().getY());
-                
+        try {                
                 responseWriter.writeStartElement("response");
                 responseWriter.writeAttribute("name", response.getName());
                 responseWriter.writeAttribute("type", response.getGazeType());
@@ -149,35 +143,12 @@ public class XMLGazeExportSolver implements IFileExportSolver, EventHandler {
                             String.valueOf(styledResponse.getLineBaseX()));
                     responseWriter.writeAttribute("line_base_y",
                             String.valueOf(styledResponse.getLineBaseY()));
-                    responseWriter.writeStartElement("sces");
-                    for (SourceCodeEntity sce : styledResponse.getSCEs()) {
-                        responseWriter.writeStartElement("sce");
-                        responseWriter.writeAttribute("name", sce.getName());
-                        responseWriter.writeAttribute("type", sce.type.toString());
-                        responseWriter.writeAttribute("how", sce.how.toString());
-                        responseWriter.writeAttribute("total_length",
-                                String.valueOf(sce.totalLength));
-                        responseWriter.writeAttribute("start_line",
-                                String.valueOf(sce.startLine));
-                        responseWriter.writeAttribute("end_line",
-                                String.valueOf(sce.endLine));
-                        responseWriter.writeAttribute("start_col",
-                                String.valueOf(sce.startCol));
-                        responseWriter.writeAttribute("end_col",
-                                String.valueOf(sce.endCol));
-                        responseWriter.writeEndElement();
-                    }
-                    responseWriter.writeEndElement();
-
-               } 
-                else {
-                	//ignore anything else
-                }
+                } 
+                
                 responseWriter.writeEndElement();
                 responseWriter.writeCharacters(EOL);
-        } catch (XMLStreamException e) {
-            // ignore write errors
-        }
+        
+        } catch (XMLStreamException e) { /* ignore write errors */ }
     }
 
     @Override
