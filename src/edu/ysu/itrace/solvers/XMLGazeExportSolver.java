@@ -119,7 +119,7 @@ public class XMLGazeExportSolver implements IFileExportSolver, EventHandler {
     public void process(IGazeResponse response) {
         try {                
                 responseWriter.writeStartElement("response");
-                responseWriter.writeAttribute("name", response.getName());
+                responseWriter.writeAttribute("object_name", response.getName());
                 responseWriter.writeAttribute("type", response.getGazeType());
                 responseWriter.writeAttribute("x", String.valueOf(response.getGaze().getX()));
                 responseWriter.writeAttribute("y", String.valueOf(response.getGaze().getY()));
