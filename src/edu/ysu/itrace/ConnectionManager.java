@@ -31,6 +31,7 @@ public class ConnectionManager {
 	private int totalX = 0;
 	private int totalY = 0;
 	private Point centre = new Point(8,8);
+	public String dirLocation = "";
 	
 	ConnectionManager(){
 		timer = new Timer();
@@ -52,6 +53,8 @@ public class ConnectionManager {
 							// For now ignore the session data to prevent crash
 							if (dataSplit[0].equalsIgnoreCase("session")) {
 								System.out.println(data);
+								String tmp = dataSplit[1];
+								dirLocation = "C:/" + tmp; //Need to think of a way to check the path before assigning. NOT FIXED YET.
 								return;
 							}
 							
