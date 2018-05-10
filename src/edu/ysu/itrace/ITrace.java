@@ -71,23 +71,9 @@ public class ITrace extends AbstractUIPlugin implements EventHandler {
      */
     public ITrace() {
     	IEditorPart editorPart = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage().getActiveEditor();
-    	/*
-    	if(editorPart != null){
-	    	StyledText styledText = (StyledText) editorPart.getAdapter(Control.class);
-	    	if(styledText != null){
-				ITextOperationTarget t = (ITextOperationTarget) activeEditor.getAdapter(ITextOperationTarget.class);
-				if(t instanceof ProjectionViewer){
-					ProjectionViewer projectionViewer = (ProjectionViewer)t;
-					tokenHighlighters.put(activeEditor, new TokenHighlighter(styledText, showTokenHighlights, projectionViewer));
-				}
-			}
-    	}
-    	*/
     	eventBroker = PlatformUI.getWorkbench().getService(IEventBroker.class);
     	eventBroker.subscribe("iTrace/newgaze", this);
-    	//jsonSolver = new JSONGazeExportSolver();
     	xmlSolver = new XMLGazeExportSolver();
-    	//eventBroker.subscribe("iTrace/jsonOutput", jsonSolver);
     	eventBroker.subscribe("iTrace/xmlOutput", xmlSolver);
     }
 
@@ -98,7 +84,6 @@ public class ITrace extends AbstractUIPlugin implements EventHandler {
     public void start(BundleContext context) throws Exception {
         super.start(context);
         plugin = this;
-        //IPreferenceStore prefStore = getDefault().getPreferenceStore();
         activeEditor = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage().getActiveEditor();
     }
 
@@ -159,6 +144,8 @@ public class ITrace extends AbstractUIPlugin implements EventHandler {
             eventBroker.post("iTrace/error", "Tracking is already in progress.");
             return recording;
         }
+        ITrace.getDefault().sessionStartTime = System.nanoTime();
+        xmlSolver.init();
         recording = true;
         return recording;
     }
@@ -169,7 +156,7 @@ public class ITrace extends AbstractUIPlugin implements EventHandler {
             return false;
         }
         connectionManager.endSocketConnection();
-        eventBroker.unsubscribe(this);
+        connectionManager = null;
         xmlSolver.dispose();
         statusLineManager.setMessage("");
         recording = false;

@@ -77,7 +77,7 @@ public class XMLGazeExportSolver implements IFileExportSolver, EventHandler {
 
         try {
         	// Setup start of XML doc (UTF-8 and version 1.0)
-        	responseWriter.writeStartDocument();
+        	responseWriter.writeStartDocument("utf-8", "1.0");
             responseWriter.writeCharacters(EOL);
             
             // Show that data is from a plugin
