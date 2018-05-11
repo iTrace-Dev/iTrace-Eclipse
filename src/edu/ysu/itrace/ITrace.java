@@ -34,7 +34,6 @@ import edu.ysu.itrace.GazeCursorWindow;
 import edu.ysu.itrace.gaze.IGazeResponse;
 import edu.ysu.itrace.gaze.IStyledTextGazeResponse;
 import edu.ysu.itrace.solvers.ISolver;
-import edu.ysu.itrace.solvers.JSONGazeExportSolver;
 import edu.ysu.itrace.solvers.XMLGazeExportSolver;
 
 /**
@@ -53,7 +52,6 @@ public class ITrace extends AbstractUIPlugin implements EventHandler {
     private boolean showTokenHighlights = false;
 
     private volatile boolean recording;
-    private JSONGazeExportSolver jsonSolver;
     private XMLGazeExportSolver xmlSolver;
     private boolean jsonOutput = true;
     private boolean xmlOutput = true;
@@ -65,6 +63,7 @@ public class ITrace extends AbstractUIPlugin implements EventHandler {
     private IEventBroker eventBroker;
     private JWindow crosshairWindow = new GazeCursorWindow();
     private Shell rootShell;
+    private int runCounter = 0;
     
     /**
      * The constructor
@@ -124,13 +123,6 @@ public class ITrace extends AbstractUIPlugin implements EventHandler {
     	statusLineManager = manager;
     }
     
-    public void setJsonOutput(boolean value){
-    	jsonOutput = value;
-    }
-    public void displayJsonExportFile(){
-    	jsonSolver.displayExportFile();
-    }
-    
     public void setXmlOutput(boolean value){
     	xmlOutput = value;
     }
@@ -145,6 +137,8 @@ public class ITrace extends AbstractUIPlugin implements EventHandler {
             return recording;
         }
         ITrace.getDefault().sessionStartTime = System.nanoTime();
+        // Need to check for runCounter because init needs to be done only when we connect for the second time. 
+        // However, init() safely assures that there will be no problem to initialize xml buffer.
         xmlSolver.init();
         recording = true;
         return recording;
@@ -161,6 +155,11 @@ public class ITrace extends AbstractUIPlugin implements EventHandler {
         statusLineManager.setMessage("");
         recording = false;
         return true;
+    }
+    
+    public void setDirLocation() {
+    	// This should set the directory name and location.
+    	//xmlSolver.dirName = connectionManager.dirLocation;  	
     }
     
     public boolean toggleTracking(){
@@ -187,11 +186,6 @@ public class ITrace extends AbstractUIPlugin implements EventHandler {
 			}
     	}
     	
-    }
-    
-    public void displayEyeStatus(){
-        	EyeStatusWindow statusWindow = new EyeStatusWindow();
-        	statusWindow.setVisible(true);
     }
     
     public void activateHighlights(){
@@ -276,7 +270,7 @@ public class ITrace extends AbstractUIPlugin implements EventHandler {
    		                 			.setMessage(String.valueOf(response.getGaze().getSessionTime()));
    		                 		registerTime = System.currentTimeMillis();
    		                 		if(xmlOutput) eventBroker.post("iTrace/xmlOutput", response);
-   		                 		if(jsonOutput) eventBroker.post("iTrace/jsonOutput", response);
+   		                 		//if(jsonOutput) eventBroker.post("iTrace/jsonOutput", response);
    		                	 }
    		                     
    		                     if(response instanceof IStyledTextGazeResponse && response != null && showTokenHighlights){

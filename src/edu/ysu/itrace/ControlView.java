@@ -152,30 +152,6 @@ public class ControlView extends ViewPart implements IPartListener2, EventHandle
         solversComposite.setLayout(new GridLayout(2, false));
         // Configure solvers here.
         
-        final Button jsonSolverEnabled =
-                    new Button(solversComposite, SWT.CHECK);
-        jsonSolverEnabled.setText("JSON Export");
-        jsonSolverEnabled.setSelection(true);
-        jsonSolverEnabled.addSelectionListener(new SelectionAdapter() {
-            @Override
-            public void widgetSelected(SelectionEvent e) {
-               		if (jsonSolverEnabled.getSelection()) {
-               			ITrace.getDefault().setJsonOutput(true);
-               		} else {
-               			ITrace.getDefault().setJsonOutput(false);
-               		}
-            }
-        });
-        grayedControls.addIfAbsent(jsonSolverEnabled);
-        final Button jsonSolverConfig = new Button(solversComposite, SWT.PUSH);
-        jsonSolverConfig.setText("...");
-        jsonSolverConfig.addSelectionListener(new SelectionAdapter() {
-            @Override
-            public void widgetSelected(SelectionEvent e) {
-               		ITrace.getDefault().displayJsonExportFile();
-            }
-        });
-        grayedControls.addIfAbsent(jsonSolverConfig);
             
        final Button xmlSolverEnabled =
     		   new Button(solversComposite, SWT.CHECK);

@@ -36,11 +36,12 @@ public class XMLGazeExportSolver implements IFileExportSolver, EventHandler {
     private File outFile;
     /*private String filename = "gaze-responses-USERNAME"
     		+ "-yyMMddTHHmmss-SSSS-Z.xml";*/
-    private String filename = "plugindata.xml";
+    //private String filename = "";
     private Dimension screenRect;
     private String sessionID;
     private IEventBroker eventBroker;
     public boolean disconnected = false;
+    public String dirName = "plugindata.xml"; //Hardcoded for now to prevent crashing
 
     public XMLGazeExportSolver() {
     	UIManager.put("swing.boldMetal", new Boolean(false)); //make UI font plain
@@ -174,7 +175,8 @@ public class XMLGazeExportSolver implements IFileExportSolver, EventHandler {
     public void config(String sessionID, String devUsername) {
     	//filename = "gaze-responses-" + devUsername + "-"
     		//	+ sessionID + ".xml";
-    	filename = "pluginData.xml";
+    	//filename = "pluginData.xml";
+
     	//this.sessionID = sessionID;
     }
 
@@ -184,7 +186,7 @@ public class XMLGazeExportSolver implements IFileExportSolver, EventHandler {
                 ResourcesPlugin.getWorkspace().getRoot().getLocation()
                         .toString();
         System.out.println("Was here at get file name");
-        return workspaceLocation + "/" + filename;
+        return workspaceLocation + "/" + dirName;
     }
 
     @Override
@@ -194,7 +196,7 @@ public class XMLGazeExportSolver implements IFileExportSolver, EventHandler {
 
     @Override
     public void displayExportFile() {
-    	JTextField displayVal = new JTextField(filename);
+    	JTextField displayVal = new JTextField(dirName);
     	displayVal.setEditable(false);
     	
     	JPanel displayPanel = new JPanel();

@@ -52,9 +52,8 @@ public class ConnectionManager {
 							
 							// For now ignore the session data to prevent crash
 							if (dataSplit[0].equalsIgnoreCase("session")) {
-								System.out.println(data);
 								String tmp = dataSplit[1];
-								dirLocation = "C:/" + tmp; //Need to think of a way to check the path before assigning. NOT FIXED YET.
+								dirLocation = tmp; //Need to think of a way to check the path before assigning. NOT FIXED YET.
 								return;
 							}
 							
