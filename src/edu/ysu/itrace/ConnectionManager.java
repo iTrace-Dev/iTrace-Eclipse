@@ -32,8 +32,10 @@ public class ConnectionManager {
 	private int totalY = 0;
 	private Point centre = new Point(8,8);
 	public String dirLocation = "";
+	private XMLGazeExportSolver xmlSolver; 
 	
 	ConnectionManager(){
+		xmlSolver = new XMLGazeExportSolver();
 		timer = new Timer();
 		eventBroker = PlatformUI.getWorkbench().getService(IEventBroker.class);
 		try{
@@ -53,7 +55,8 @@ public class ConnectionManager {
 							// For now ignore the session data to prevent crash
 							if (dataSplit[0].equalsIgnoreCase("session")) {
 								String tmp = dataSplit[1];
-								dirLocation = tmp; //Need to think of a way to check the path before assigning. NOT FIXED YET.
+								dirLocation = tmp;//Need to think of a way to check the path before assigning. NOT FIXED YET.
+								//xmlSolver.config(dirLocation);
 								return;
 							}
 							

@@ -34,9 +34,7 @@ public class XMLGazeExportSolver implements IFileExportSolver, EventHandler {
     private XMLOutputFactory outFactory = XMLOutputFactory.newInstance();
     private XMLStreamWriter responseWriter;
     private File outFile;
-    /*private String filename = "gaze-responses-USERNAME"
-    		+ "-yyMMddTHHmmss-SSSS-Z.xml";*/
-    //private String filename = "";
+    private String filename = "";
     private Dimension screenRect;
     private String sessionID;
     private IEventBroker eventBroker;
@@ -46,7 +44,6 @@ public class XMLGazeExportSolver implements IFileExportSolver, EventHandler {
     public XMLGazeExportSolver() {
     	UIManager.put("swing.boldMetal", new Boolean(false)); //make UI font plain
     	eventBroker = PlatformUI.getWorkbench().getService(IEventBroker.class);
-    	//eventBroker.subscribe("iTrace/newdata", this);
     }
     
     @Override
@@ -54,17 +51,6 @@ public class XMLGazeExportSolver implements IFileExportSolver, EventHandler {
         screenRect = Toolkit.getDefaultToolkit().getScreenSize();
         try {
         	outFile = new File(getFilename());
-            
-            // Check that file does not already exist. If it does, do not begin
-            // tracking.
-            /*if (outFile.exists()) {
-                System.out.println(friendlyName());
-                System.out.println("You cannot overwrite this file. If you "
-                        + "wish to continue, delete the file " + "manually.");
-
-                return;
-            }
-*/
             responseWriter =
                     outFactory.createXMLStreamWriter(new FileOutputStream(outFile), "UTF-8");
         } catch (IOException e) {
@@ -172,12 +158,8 @@ public class XMLGazeExportSolver implements IFileExportSolver, EventHandler {
     }
     
     @Override
-    public void config(String sessionID, String devUsername) {
-    	//filename = "gaze-responses-" + devUsername + "-"
-    		//	+ sessionID + ".xml";
-    	//filename = "pluginData.xml";
-
-    	//this.sessionID = sessionID;
+    public void config(String dirLocation) {
+    	filename = dirLocation + ".xml";
     }
 
     @Override
@@ -185,7 +167,6 @@ public class XMLGazeExportSolver implements IFileExportSolver, EventHandler {
         String workspaceLocation =
                 ResourcesPlugin.getWorkspace().getRoot().getLocation()
                         .toString();
-        System.out.println("Was here at get file name");
         return workspaceLocation + "/" + dirName;
     }
 

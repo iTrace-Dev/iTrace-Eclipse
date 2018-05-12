@@ -64,6 +64,7 @@ public class ITrace extends AbstractUIPlugin implements EventHandler {
     private JWindow crosshairWindow = new GazeCursorWindow();
     private Shell rootShell;
     private int runCounter = 0;
+    private String dirLocation = "";
     
     /**
      * The constructor
@@ -256,6 +257,7 @@ public class ITrace extends AbstractUIPlugin implements EventHandler {
    		if(event.getTopic() == "iTrace/newgaze"){
    			String[] propertyNames = event.getPropertyNames();
    			Gaze g = (Gaze)event.getProperty(propertyNames[0]);
+   			dirLocation = g.getEventID();
    			 if (g != null) {
    	             if(!rootShell.isDisposed()){
    	            	 Rectangle monitorBounds = rootShell.getMonitor().getBounds();
