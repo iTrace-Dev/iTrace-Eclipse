@@ -102,7 +102,7 @@ public class Gaze {
     }
 
     public long getTrackerTime() {
-        return trackerTime/1000;
+        return trackerTime;
     }
 
     public long getSystemTime() {
