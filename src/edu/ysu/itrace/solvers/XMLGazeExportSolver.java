@@ -39,6 +39,7 @@ public class XMLGazeExportSolver implements IFileExportSolver, EventHandler {
     private String sessionID;
     private IEventBroker eventBroker;
     public boolean disconnected = false;
+    public boolean initialized = false;
     public String dirName = "plugindata.xml"; //Hardcoded for now to prevent crashing
 
     public XMLGazeExportSolver() {
@@ -48,6 +49,7 @@ public class XMLGazeExportSolver implements IFileExportSolver, EventHandler {
     
     @Override
     public void init() {
+    	initialized = true;
         screenRect = Toolkit.getDefaultToolkit().getScreenSize();
         try {
         	outFile = new File(getFilename());

@@ -138,9 +138,6 @@ public class ITrace extends AbstractUIPlugin implements EventHandler {
             return recording;
         }
         ITrace.getDefault().sessionStartTime = System.nanoTime();
-        // Need to check for runCounter because init needs to be done only when we connect for the second time. 
-        // However, init() safely assures that there will be no problem to initialize xml buffer.
-        xmlSolver.init();
         recording = true;
         return recording;
     }
@@ -152,7 +149,10 @@ public class ITrace extends AbstractUIPlugin implements EventHandler {
         }
         connectionManager.endSocketConnection();
         connectionManager = null;
-        xmlSolver.dispose();
+        if (xmlSolver.initialized) {
+        	xmlSolver.initialized = false;
+        	xmlSolver.dispose();
+        }
         statusLineManager.setMessage("");
         recording = false;
         return true;
