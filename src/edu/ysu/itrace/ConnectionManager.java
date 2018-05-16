@@ -8,14 +8,6 @@ import org.eclipse.e4.core.services.events.IEventBroker;
 import org.eclipse.ui.PlatformUI;
 import edu.ysu.itrace.GazeCursorWindow;
 import org.eclipse.swt.graphics.Point;
-
-//Don't seem to be in use
-import org.eclipse.swt.SWT;
-import org.eclipse.swt.events.PaintEvent;
-import org.eclipse.swt.events.PaintListener;
-import org.eclipse.swt.widgets.Canvas;
-import org.eclipse.swt.widgets.Composite;
-import org.eclipse.swt.widgets.Shell;
 import edu.ysu.itrace.solvers.XMLGazeExportSolver;
 
 public class ConnectionManager {
@@ -49,14 +41,11 @@ public class ConnectionManager {
 					try {
 						if(reader.ready()){
 							data = reader.readLine();
-							//eventBroker.post("SocketData", data);
 							String[] dataSplit = data.split(",");
 							
-							// For now ignore the session data to prevent crash
 							if (dataSplit[0].equalsIgnoreCase("session")) {
 								String tmp = dataSplit[1];
-								dirLocation = tmp;//Need to think of a way to check the path before assigning. NOT FIXED YET.
-								//xmlSolver.config(dirLocation);
+								dirLocation = tmp;
 								return;
 							}
 							
@@ -75,21 +64,19 @@ public class ConnectionManager {
 								} 
 								
 								long timestamp = Long.parseLong(dataSplit[1]);
-								Gaze gaze = new Gaze(x,x,y,y,0,0,0,0,timestamp, dataSplit[1]);
+								Gaze gaze = new Gaze(x,x,y,y,0,0,0,0,timestamp, dirLocation);
 								
 								if (gazeCursorDisplay == true) {
 									if (x < 0 || y < 0) return;
 									counter++;
 									totalX += x;
 									totalY += y;
-									//gazeCursorWindow.setLocation((int)x, (int)y);
 									if(counter == 10) {
 										int avgX = totalX/10;
 										int avgY = totalY/10;
 										totalX = 0;
 										totalY = 0;
 										counter = 0;
-										//crosshairWindow.setLocation((int)x, (int)y);
 										gazeCursorWindow.setLocation(avgX- centre.x, avgY - centre.y);
 									}
 								}
@@ -97,7 +84,7 @@ public class ConnectionManager {
 							}
 							catch(Exception e) {
 								e.printStackTrace();
-							}	//System.out.println(data);
+							}	
 						}
 						
 					} catch (IOException e) {

@@ -157,12 +157,7 @@ public class ITrace extends AbstractUIPlugin implements EventHandler {
         recording = false;
         return true;
     }
-    
-    public void setDirLocation() {
-    	// This should set the directory name and location.
-    	//xmlSolver.dirName = connectionManager.dirLocation;  	
-    }
-    
+
     public boolean toggleTracking(){
     	if(recording) return disconnectFromServer();
     	else return connectToServer();
@@ -257,7 +252,13 @@ public class ITrace extends AbstractUIPlugin implements EventHandler {
    		if(event.getTopic() == "iTrace/newgaze"){
    			String[] propertyNames = event.getPropertyNames();
    			Gaze g = (Gaze)event.getProperty(propertyNames[0]);
-   			dirLocation = g.getEventID();
+   			//Fetching the directory location//
+   			String tmp = g.getEventID();
+   			String eventID = tmp.substring(tmp.length() - 10);
+			String tmp_dir = tmp + "/" + "eclipse_" + eventID + ".xml";
+			dirLocation = tmp_dir;
+   			xmlSolver.config(dirLocation); //Configures the directory location for the xml file
+   			//******************************//
    			 if (g != null) {
    	             if(!rootShell.isDisposed()){
    	            	 Rectangle monitorBounds = rootShell.getMonitor().getBounds();

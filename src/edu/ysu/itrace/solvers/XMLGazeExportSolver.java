@@ -36,11 +36,8 @@ public class XMLGazeExportSolver implements IFileExportSolver, EventHandler {
     private File outFile;
     private String filename = "";
     private Dimension screenRect;
-    private String sessionID;
     private IEventBroker eventBroker;
-    public boolean disconnected = false;
     public boolean initialized = false;
-    public String dirName = "plugindata.xml"; //Hardcoded for now to prevent crashing
 
     public XMLGazeExportSolver() {
     	UIManager.put("swing.boldMetal", new Boolean(false)); //make UI font plain
@@ -161,15 +158,12 @@ public class XMLGazeExportSolver implements IFileExportSolver, EventHandler {
     
     @Override
     public void config(String dirLocation) {
-    	filename = dirLocation + ".xml";
+    	filename = dirLocation;
     }
 
     @Override
     public String getFilename() {
-        String workspaceLocation =
-                ResourcesPlugin.getWorkspace().getRoot().getLocation()
-                        .toString();
-        return workspaceLocation + "/" + dirName;
+        return filename;
     }
 
     @Override
@@ -179,7 +173,7 @@ public class XMLGazeExportSolver implements IFileExportSolver, EventHandler {
 
     @Override
     public void displayExportFile() {
-    	JTextField displayVal = new JTextField(dirName);
+    	JTextField displayVal = new JTextField(filename);
     	displayVal.setEditable(false);
     	
     	JPanel displayPanel = new JPanel();
@@ -202,25 +196,6 @@ public class XMLGazeExportSolver implements IFileExportSolver, EventHandler {
 		String[] propertyNames = event.getPropertyNames();
 		IGazeResponse response = (IGazeResponse)event.getProperty(propertyNames[0]);
 		this.process(response);
-	
-		if(disconnected) {
-			 try {
-		            responseWriter.writeEndElement();
-		            responseWriter.writeCharacters(EOL);
-		            responseWriter.writeEndElement();
-		            responseWriter.writeCharacters(EOL);
-		            responseWriter.writeEndDocument();
-		            responseWriter.writeCharacters(EOL);
-		            responseWriter.flush();
-		            responseWriter.close();
-		            System.out.println("Gaze responses saved.");
-		        } catch (XMLStreamException e) {
-		            throw new RuntimeException("Log file footer could not be written: "
-		                    + e.getMessage());
-		        }
-			
-		}
-		disconnected = false;
 		
 	}
 }
