@@ -14,7 +14,7 @@ public class Gaze {
     private double left_pupil_diameter;
     private double right_pupil_diameter;
 
-    private long trackerTime;
+    private long eventTime;
     private Calendar calendar = Calendar.getInstance();
     private long nanoTime = System.nanoTime();
     private long systemTime = System.currentTimeMillis();
@@ -27,7 +27,7 @@ public class Gaze {
     public Gaze(double left_x, double right_x, double left_y, double right_y,
                 double left_validity, double right_validity,
                 double left_pupil_diameter, double right_pupil_diameter,
-                long trackerTime, String event) {
+                long eventTime, String event) {
         this.left_x = left_x;
         this.right_x = right_x;
 
@@ -37,7 +37,7 @@ public class Gaze {
         this.x = (left_x + right_x) / 2;
         this.y = (left_y + right_y) / 2;
 
-        this.trackerTime = trackerTime;
+        this.eventTime = eventTime;
         this.left_validity = left_validity;
         this.right_validity = right_validity;
         
@@ -101,8 +101,8 @@ public class Gaze {
         return right_pupil_diameter;
     }
 
-    public long getTrackerTime() {
-        return trackerTime;
+    public long getEventTime() {
+        return eventTime;
     }
 
     public long getSystemTime() {
