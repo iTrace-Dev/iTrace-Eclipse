@@ -1,7 +1,5 @@
 package edu.ysu.itrace;
 
-import java.io.File;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.concurrent.CopyOnWriteArrayList;
 
@@ -9,8 +7,6 @@ import org.eclipse.e4.core.services.events.IEventBroker;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.browser.Browser;
 import org.eclipse.swt.custom.StyledText;
-import org.eclipse.swt.events.ModifyListener;
-import org.eclipse.swt.events.ModifyEvent;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.layout.GridData;
@@ -20,8 +16,6 @@ import org.eclipse.swt.layout.RowLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
-import org.eclipse.swt.widgets.Display;
-import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.MessageBox;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Spinner;
@@ -31,7 +25,6 @@ import org.eclipse.ui.IPartListener2;
 import org.eclipse.ui.IWorkbenchPart;
 import org.eclipse.ui.IWorkbenchPartReference;
 import org.eclipse.ui.PlatformUI;
-import org.eclipse.ui.ide.FileStoreEditorInput;
 import org.eclipse.ui.part.ViewPart;
 import org.osgi.service.event.Event;
 import org.osgi.service.event.EventHandler;
@@ -41,12 +34,7 @@ import org.osgi.service.event.EventHandler;
  * ViewPart for managing and controlling the plugin.
  */
 public class ControlView extends ViewPart implements IPartListener2, EventHandler{
-    public static final String KEY_AST = "itraceAST";
-    public static final String KEY_SO_DOM = "itraceSO";
-    public static final String KEY_BR_DOM = "itraceBR";
-    public static final String FATAL_ERROR_MSG = "A fatal error occurred. "
-            + "Restart the plugin and try again. If "
-            + "the problem persists, submit a bug report.";
+    public static final String KEY_ITRACE = "itrace";
 
     private Shell rootShell;
 
@@ -335,8 +323,8 @@ public class ControlView extends ViewPart implements IPartListener2, EventHandle
      * @param styledText StyledText to set up.
      */
     private void setupStyledText(IEditorPart editor, StyledText styledText) {
-        if (styledText.getData(KEY_AST) == null)
-            styledText.setData(KEY_AST, new AstManager(editor, styledText));
+        if (styledText.getData(KEY_ITRACE) == null)
+            styledText.setData(KEY_ITRACE, editor);
     }
 
     

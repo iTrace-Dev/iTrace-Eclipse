@@ -6,23 +6,13 @@ import org.eclipse.swt.events.PaintListener;
 import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.graphics.Rectangle;
-import org.eclipse.swt.widgets.Control;
-import org.eclipse.swt.widgets.Display;
-import org.eclipse.ui.IEditorPart;
 import org.eclipse.ui.PlatformUI;
 import org.osgi.service.event.Event;
 import org.osgi.service.event.EventHandler;
 
-import edu.ysu.itrace.gaze.IGazeResponse;
 import edu.ysu.itrace.gaze.IStyledTextGazeResponse;
-import edu.ysu.itrace.gaze.handlers.StyledTextGazeHandler;
-
-import java.awt.Dimension;
-import java.awt.Toolkit;
-import java.util.concurrent.LinkedBlockingQueue;
 
 import org.eclipse.e4.core.services.events.IEventBroker;
-import org.eclipse.jface.text.ITextOperationTarget;
 import org.eclipse.jface.text.source.projection.ProjectionViewer;
 
 public class TokenHighlighter implements PaintListener, EventHandler {

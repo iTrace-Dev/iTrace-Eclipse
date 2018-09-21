@@ -22,7 +22,6 @@ import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.IActionBars;
 import org.eclipse.ui.IEditorPart;
-import org.eclipse.ui.IEditorReference;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
 import org.osgi.framework.BundleContext;
@@ -30,10 +29,8 @@ import org.osgi.service.event.Event;
 import org.osgi.service.event.EventHandler;
 
 import edu.ysu.itrace.gaze.IGazeHandler;
-import edu.ysu.itrace.GazeCursorWindow;
 import edu.ysu.itrace.gaze.IGazeResponse;
 import edu.ysu.itrace.gaze.IStyledTextGazeResponse;
-import edu.ysu.itrace.solvers.ISolver;
 import edu.ysu.itrace.solvers.XMLGazeExportSolver;
 
 /**
@@ -53,7 +50,6 @@ public class ITrace extends AbstractUIPlugin implements EventHandler {
 
     private volatile boolean recording;
     private XMLGazeExportSolver xmlSolver;
-    private boolean jsonOutput = true;
     private boolean xmlOutput = true;
     private ConnectionManager connectionManager;
     
@@ -61,16 +57,13 @@ public class ITrace extends AbstractUIPlugin implements EventHandler {
     private IStatusLineManager statusLineManager;
     private long registerTime = 2000;
     private IEventBroker eventBroker;
-    private JWindow crosshairWindow = new GazeCursorWindow();
     private Shell rootShell;
-    private int runCounter = 0;
     private String dirLocation = "";
     
     /**
      * The constructor
      */
     public ITrace() {
-    	IEditorPart editorPart = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage().getActiveEditor();
     	eventBroker = PlatformUI.getWorkbench().getService(IEventBroker.class);
     	eventBroker.subscribe("iTrace/newgaze", this);
     	xmlSolver = new XMLGazeExportSolver();

@@ -22,7 +22,6 @@ public class ConnectionManager {
 	private int counter = 0;
 	private int totalX = 0;
 	private int totalY = 0;
-	private Point centre = new Point(8,8);
 	public String dirLocation = "";
 	private XMLGazeExportSolver xmlSolver; 
 	
