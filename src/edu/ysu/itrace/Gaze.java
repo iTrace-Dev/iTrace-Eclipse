@@ -18,7 +18,6 @@ public class Gaze {
     private Calendar calendar = Calendar.getInstance();
     private long nanoTime = System.nanoTime();
     private long systemTime = System.currentTimeMillis();
-    private int nanoseconds;
     private Timestamp timestamp;
     private String timestampString;
     private String eventID;
@@ -45,7 +44,6 @@ public class Gaze {
         eventID = event;
         
         calendar.setTimeInMillis(systemTime);
-        nanoseconds = (int) (nanoTime%1000000000);
 
         timestamp = new Timestamp(systemTime);
         //timestamp.setNanos(nanoseconds);

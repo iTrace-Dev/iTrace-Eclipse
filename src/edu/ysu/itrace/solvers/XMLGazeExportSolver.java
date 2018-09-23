@@ -24,7 +24,6 @@ import org.osgi.service.event.EventHandler;
 
 import edu.ysu.itrace.gaze.IGazeResponse;
 import edu.ysu.itrace.gaze.IStyledTextGazeResponse;
-import edu.ysu.itrace.Gaze;
 
 /**
  * Solver that simply dumps gaze data to disk in XML format.

@@ -1,28 +1,21 @@
 package edu.ysu.itrace;
 
-import java.awt.Dimension;
-import java.awt.Toolkit;
-import java.io.IOException;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.Queue;
-import javax.swing.JWindow;
 
 import org.eclipse.e4.core.services.events.IEventBroker;
 import org.eclipse.jface.action.IStatusLineManager;
-import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.jface.text.ITextOperationTarget;
 import org.eclipse.jface.text.source.projection.ProjectionViewer;
 import org.eclipse.swt.custom.StyledText;
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.graphics.Rectangle;
-import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.IActionBars;
 import org.eclipse.ui.IEditorPart;
-import org.eclipse.ui.IEditorReference;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
 import org.osgi.framework.BundleContext;
@@ -30,10 +23,8 @@ import org.osgi.service.event.Event;
 import org.osgi.service.event.EventHandler;
 
 import edu.ysu.itrace.gaze.IGazeHandler;
-import edu.ysu.itrace.GazeCursorWindow;
 import edu.ysu.itrace.gaze.IGazeResponse;
 import edu.ysu.itrace.gaze.IStyledTextGazeResponse;
-import edu.ysu.itrace.solvers.ISolver;
 import edu.ysu.itrace.solvers.XMLGazeExportSolver;
 
 /**
@@ -53,7 +44,6 @@ public class ITrace extends AbstractUIPlugin implements EventHandler {
 
     private volatile boolean recording;
     private XMLGazeExportSolver xmlSolver;
-    private boolean jsonOutput = true;
     private boolean xmlOutput = true;
     private ConnectionManager connectionManager;
     
@@ -61,16 +51,24 @@ public class ITrace extends AbstractUIPlugin implements EventHandler {
     private IStatusLineManager statusLineManager;
     private long registerTime = 2000;
     private IEventBroker eventBroker;
-    private JWindow crosshairWindow = new GazeCursorWindow();
     private Shell rootShell;
-    private int runCounter = 0;
     private String dirLocation = "";
     
     /**
      * The constructor
      */
     public ITrace() {
+    	/** 
+    	 * This part is used to stabilize the functioning of token highlighter. 
+    	 */
     	IEditorPart editorPart = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage().getActiveEditor();
+    	if(editorPart != null){
+	    	StyledText styledText = (StyledText) editorPart.getAdapter(Control.class);
+	    	if(styledText != null){
+					tokenHighlighters.put(editorPart, new TokenHighlighter(editorPart, showTokenHighlights));
+			}
+    	}
+    	//iTrace invokes the events to the Eventbroker and these events are subscribed in an order.
     	eventBroker = PlatformUI.getWorkbench().getService(IEventBroker.class);
     	eventBroker.subscribe("iTrace/newgaze", this);
     	xmlSolver = new XMLGazeExportSolver();
@@ -170,16 +168,8 @@ public class ITrace extends AbstractUIPlugin implements EventHandler {
     
     public void setActiveEditor(IEditorPart editorPart){
     	activeEditor = editorPart;
-    	if(activeEditor == null) return;
     	if(!tokenHighlighters.containsKey(editorPart)){
-    		StyledText styledText = (StyledText) editorPart.getAdapter(Control.class);
-    		if(styledText != null){
-				ITextOperationTarget t = (ITextOperationTarget) activeEditor.getAdapter(ITextOperationTarget.class);
-				if(t instanceof ProjectionViewer){
-					ProjectionViewer projectionViewer = (ProjectionViewer)t;
-					tokenHighlighters.put(activeEditor, new TokenHighlighter(styledText, showTokenHighlights, projectionViewer));
-				}
-			}
+    		tokenHighlighters.put(editorPart, new TokenHighlighter(editorPart,showTokenHighlights));
     	}
     	
     }
@@ -188,22 +178,20 @@ public class ITrace extends AbstractUIPlugin implements EventHandler {
         	showTokenHighLights();
     }
     
+    public void updateHighlighters(IEditorPart editorPart,Gaze gaze){
+    	if(editorPart == null) editorPart = activeEditor;
+    }
+    
+    
     public void removeHighlighter(IEditorPart editorPart){
     	tokenHighlighters.remove(editorPart);
     }
     
     public void showTokenHighLights(){
     	showTokenHighlights = !showTokenHighlights;
-    	if(activeEditor == null) return;
 		if(!tokenHighlighters.containsKey(activeEditor)){
-			StyledText styledText = (StyledText) activeEditor.getAdapter(Control.class);
-			if(styledText != null){
-				ITextOperationTarget t = (ITextOperationTarget) activeEditor.getAdapter(ITextOperationTarget.class);
-				if(t instanceof ProjectionViewer){
-					ProjectionViewer projectionViewer = (ProjectionViewer)t;
-					tokenHighlighters.put(activeEditor, new TokenHighlighter(styledText, showTokenHighlights, projectionViewer));
-				}
-			}
+			tokenHighlighters.put(activeEditor, new TokenHighlighter(activeEditor, showTokenHighlights));
+			if(activeEditor == null) return;
 		}
     	for(TokenHighlighter tokenHighlighter: tokenHighlighters.values()){
     		tokenHighlighter.setShow(showTokenHighlights);
@@ -259,9 +247,11 @@ public class ITrace extends AbstractUIPlugin implements EventHandler {
 			dirLocation = tmp_dir;
    			xmlSolver.config(dirLocation); //Configures the directory location for the xml file
    			//******************************//
+   			// This entire function needs to be re-written. This works for now, but is one of the main reasons of inefficiency while working with 
+   		    // high-frequency trackers. 
+   		    // This involves a lot of real-time processing.
    			 if (g != null) {
    	             if(!rootShell.isDisposed()){
-   	            	 Rectangle monitorBounds = rootShell.getMonitor().getBounds();
    	            	 int screenX = (int) (g.getX());
    		             int screenY = (int) (g.getY());
    		             IGazeResponse response;
@@ -273,12 +263,10 @@ public class ITrace extends AbstractUIPlugin implements EventHandler {
    		                 			.setMessage(String.valueOf(response.getGaze().getSessionTime()));
    		                 		registerTime = System.currentTimeMillis();
    		                 		if(xmlOutput) eventBroker.post("iTrace/xmlOutput", response);
-   		                 		//if(jsonOutput) eventBroker.post("iTrace/jsonOutput", response);
    		                	 }
    		                     
    		                     if(response instanceof IStyledTextGazeResponse && response != null && showTokenHighlights){
    		                     	IStyledTextGazeResponse styledTextResponse = (IStyledTextGazeResponse)response;
-   		                     	System.out.println("I am here");
    		                     	eventBroker.post("iTrace/newstresponse", styledTextResponse);
    		                     }
    		             }
