@@ -18,7 +18,6 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.MessageBox;
 import org.eclipse.swt.widgets.Shell;
-import org.eclipse.swt.widgets.Spinner;
 import org.eclipse.ui.IEditorPart;
 import org.eclipse.ui.IEditorReference;
 import org.eclipse.ui.IPartListener2;
@@ -42,10 +41,6 @@ public class ControlView extends ViewPart implements IPartListener2, EventHandle
             new CopyOnWriteArrayList<Control>();
     
     private ArrayList<IEditorReference> setupEditors = new ArrayList<IEditorReference>();
-    
-    private Spinner xDrift;
-    private Spinner yDrift;
-    
 
     private IEventBroker eventBroker;
 
@@ -64,11 +59,7 @@ public class ControlView extends ViewPart implements IPartListener2, EventHandle
 
         // add listener for determining part visibility
         getSite().getWorkbenchWindow().getPartService().addPartListener(this);
-        
-        final String DONT_DO_THAT_MSG =
-                "You can't do that until you've "
-                        + "selected a tracker in preferences.";
-
+ 
         // set up UI
         parent.setLayout(new RowLayout());
         
@@ -104,11 +95,6 @@ public class ControlView extends ViewPart implements IPartListener2, EventHandle
             	
             }
         });
-        
-        
-        final String DONT_CHANGE_THAT_MSG =
-                "Don't change this value until "
-                        + "you've selected a tracker in preferences.";
         
         //Tuning Composite Start.
         final Composite tuningComposite = new Composite(parent, SWT.NONE);

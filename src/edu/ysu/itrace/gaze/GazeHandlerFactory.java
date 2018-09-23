@@ -1,6 +1,5 @@
 package edu.ysu.itrace.gaze;
 
-import org.eclipse.swt.browser.Browser;
 import org.eclipse.swt.custom.StyledText;
 import org.eclipse.swt.widgets.Tree;
 import org.eclipse.ui.IEditorReference;
