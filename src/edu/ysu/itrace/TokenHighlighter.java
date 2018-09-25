@@ -106,7 +106,7 @@ public class TokenHighlighter implements PaintListener, EventHandler {
 		points[pointIndex] = new Point(x,y);
 		pointIndex++;
 		if(pointIndex > numberOfPoints-1) pointIndex = pointIndex%numberOfPoints;
-		if(containsPoints(boundingBox)) return boundingBox;
+		if(boundingBox != null && containsPoints(boundingBox)) return boundingBox;
 		int startOffset = 0;
 		int endOffset;
 		while(startOffset < lineContent.length()){
