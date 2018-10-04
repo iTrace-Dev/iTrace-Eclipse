@@ -33,19 +33,22 @@ public class ConnectionManager {
 			socket = new Socket("localhost", 8008);
 			reader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
 			
-			timer.schedule(new TimerTask(){
+			Thread socketReaderThread = new Thread() {
 
 				@Override
 				public void run() {
-					try {
-						if(reader.ready()){
+					while(socket.isClosed() == false) {
+						try {
 							data = reader.readLine();
+							if(data == null) {
+								continue;
+							}
 							String[] dataSplit = data.split(",");
 							
 							if (dataSplit[0].equalsIgnoreCase("session")) {
 								String tmp = dataSplit[1];
 								dirLocation = tmp;
-								return;
+								continue;
 							}
 							
 							if(dataSplit[2].toLowerCase().contains("nan") || dataSplit[3].toLowerCase().contains("nan")) {
@@ -66,7 +69,7 @@ public class ConnectionManager {
 								Gaze gaze = new Gaze(x,x,y,y,0,0,0,0,timestamp, dirLocation);
 								
 								if (gazeCursorDisplay == true) {
-									if (x < 0 || y < 0) return;
+									if (x < 0 || y < 0) continue;
 									counter++;
 									totalX += x;
 									totalY += y;
@@ -84,14 +87,14 @@ public class ConnectionManager {
 							catch(Exception e) {
 								e.printStackTrace();
 							}	
-						}
-						
-					} catch (IOException e) {
-						e.printStackTrace();
-					}		
-				}
-				
-			}, 0,1);
+							
+						} catch (IOException e) {
+							e.printStackTrace();
+						}	
+					}
+				}				
+			};
+			socketReaderThread.start();
 		}catch(IOException ex){
 			ex.printStackTrace();
 		}
@@ -101,6 +104,7 @@ public class ConnectionManager {
 		gazeCursorWindow.setVisible(display);	
 		gazeCursorDisplay = display;	
 	}
+	
 	void endSocketConnection() {
 		try {
 			socket.close();
@@ -108,5 +112,5 @@ public class ConnectionManager {
 		catch(Exception e) {
 			e.printStackTrace();
 		}
-		}
 	}
+}
