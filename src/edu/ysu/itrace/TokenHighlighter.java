@@ -72,8 +72,9 @@ public class TokenHighlighter implements PaintListener, EventHandler {
 	}
 	
 	public void update(int lineIndex, int column, int x, int y){
-        int lineOffset = styledText.getOffsetAtLine(lineIndex);
-		String lineContent = styledText.getLine(lineIndex);
+		int foldedLineIndex = styledText.getLineIndex(y);
+		int lineOffset = styledText.getOffsetAtLine(foldedLineIndex);
+		String lineContent = styledText.getLine(foldedLineIndex);
 		boundingBox = getBoundingBox(lineOffset,lineContent,x,y);
 		
 		styledText.redraw();

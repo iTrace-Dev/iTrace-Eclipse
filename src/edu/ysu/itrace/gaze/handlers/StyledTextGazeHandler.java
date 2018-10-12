@@ -2,11 +2,16 @@ package edu.ysu.itrace.gaze.handlers;
 
 import java.io.IOException;
 
+import org.eclipse.jface.text.ITextOperationTarget;
+import org.eclipse.jface.text.source.projection.ProjectionViewer;
 //import org.eclipse.jface.text.source.projection.ProjectionViewer;
 import org.eclipse.swt.custom.StyledText;
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.ui.IEditorPart;
 import org.eclipse.ui.IFileEditorInput;
+import org.eclipse.ui.IWorkbenchPartReference;
+import org.eclipse.ui.PartInitException;
+import org.eclipse.ui.IEditorReference;
 
 import edu.ysu.itrace.ControlView;
 import edu.ysu.itrace.Gaze;
@@ -18,7 +23,6 @@ import edu.ysu.itrace.gaze.IStyledTextGazeResponse;
  */
 public class StyledTextGazeHandler implements IGazeHandler {
     private StyledText targetStyledText;
-    //private ProjectionViewer projectionViewer;
 
     /**
      * Constructs a new gaze handler for the target StyledText object
@@ -43,8 +47,14 @@ public class StyledTextGazeHandler implements IGazeHandler {
             if (targetStyledText.getData(ControlView.KEY_ITRACE) == null)
             		return null;
             
-            lineIndex = targetStyledText.getLineIndex(relativeY);
-            int lineOffset = targetStyledText.getOffsetAtLine(lineIndex);
+            IEditorPart editor = (IEditorPart)targetStyledText.getData(ControlView.KEY_ITRACE);
+            ProjectionViewer projectionViewer = (ProjectionViewer) editor.getAdapter(ITextOperationTarget.class); 
+            
+            // Get the actual offset of the current line from the top
+            // Allows code folding to be taken into account
+            int foldedLineIndex = targetStyledText.getLineIndex(relativeY);
+            int lineOffset = targetStyledText.getOffsetAtLine(foldedLineIndex);
+   
             
             int offset;
             try{
@@ -53,7 +63,8 @@ public class StyledTextGazeHandler implements IGazeHandler {
             	return null;
             }
             col = offset - lineOffset;
-
+            lineIndex = projectionViewer.widgetLine2ModelLine(foldedLineIndex);
+            
             // (0, 0) relative to the control in absolute screen
             // coordinates.
             Point relativeRoot = new Point(absoluteX - relativeX, absoluteY
@@ -72,8 +83,7 @@ public class StyledTextGazeHandler implements IGazeHandler {
             fontHeight = targetStyledText.getFont().getFontData()[0]
                     .getHeight();
             
-            path =  ((IFileEditorInput) ((IEditorPart) targetStyledText.getData(ControlView.KEY_ITRACE)).getEditorInput()).getFile()
-                    .getFullPath().toFile().getCanonicalPath();
+            path =  ((IFileEditorInput) editor.getEditorInput()).getFile().getFullPath().toFile().getCanonicalPath();
             int splitLength = path.split("\\\\").length;
             name = path.split("\\\\")[splitLength-1];
         } catch (IllegalArgumentException e) {
