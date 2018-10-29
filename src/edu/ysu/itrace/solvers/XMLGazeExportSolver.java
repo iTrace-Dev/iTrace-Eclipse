@@ -16,9 +16,6 @@ import javax.xml.stream.XMLOutputFactory;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamWriter;
 
-import org.eclipse.core.resources.ResourcesPlugin;
-import org.eclipse.e4.core.services.events.IEventBroker;
-import org.eclipse.ui.PlatformUI;
 import org.osgi.service.event.Event;
 import org.osgi.service.event.EventHandler;
 
@@ -35,12 +32,10 @@ public class XMLGazeExportSolver implements IFileExportSolver, EventHandler {
     private File outFile;
     private String filename = "";
     private Dimension screenRect;
-    private IEventBroker eventBroker;
     public boolean initialized = false;
 
     public XMLGazeExportSolver() {
     	UIManager.put("swing.boldMetal", new Boolean(false)); //make UI font plain
-    	eventBroker = PlatformUI.getWorkbench().getService(IEventBroker.class);
     }
     
     @Override
@@ -49,14 +44,11 @@ public class XMLGazeExportSolver implements IFileExportSolver, EventHandler {
         screenRect = Toolkit.getDefaultToolkit().getScreenSize();
         try {
         	outFile = new File(getFilename());
-            responseWriter =
-                    outFactory.createXMLStreamWriter(new FileOutputStream(outFile), "UTF-8");
+            responseWriter = outFactory.createXMLStreamWriter(new FileOutputStream(outFile), "UTF-8");
         } catch (IOException e) {
-            throw new RuntimeException("Log files could not be created: "
-                    + e.getMessage());
+            throw new RuntimeException("Log files could not be created: " + e.getMessage());
         } catch (XMLStreamException e) {
-            throw new RuntimeException("Log files could not be created: "
-                    + e.getMessage());
+            throw new RuntimeException("Log files could not be created: " + e.getMessage());
         }
         System.out.println("Putting files at " + outFile.getAbsolutePath());
 
@@ -103,36 +95,27 @@ public class XMLGazeExportSolver implements IFileExportSolver, EventHandler {
     @Override
     public void process(IGazeResponse response) {
         try {                
-                responseWriter.writeStartElement("response");
-                responseWriter.writeAttribute("object_name", response.getName());
-                responseWriter.writeAttribute("type", response.getGazeType());
-                responseWriter.writeAttribute("x", String.valueOf(response.getGaze().getX()));
-                responseWriter.writeAttribute("y", String.valueOf(response.getGaze().getY()));
-                responseWriter.writeAttribute("timestamp",
-                        String.valueOf(response.getGaze().getTimestamp()));
-                responseWriter.writeAttribute("event_time", String.valueOf(response.getGaze().getEventTime()));
-                
-                if (response instanceof IStyledTextGazeResponse) {
-                    IStyledTextGazeResponse styledResponse =
-                            (IStyledTextGazeResponse) response;
-                    responseWriter.writeAttribute("path", styledResponse.getPath());
-                    responseWriter.writeAttribute("line_height",
-                            String.valueOf(styledResponse.getLineHeight()));
-                    responseWriter.writeAttribute("font_height",
-                            String.valueOf(styledResponse.getFontHeight()));
-                    responseWriter.writeAttribute("line",
-                            String.valueOf(styledResponse.getLine()));
-                    responseWriter.writeAttribute("col",
-                            String.valueOf(styledResponse.getCol()));
-                    responseWriter.writeAttribute("line_base_x",
-                            String.valueOf(styledResponse.getLineBaseX()));
-                    responseWriter.writeAttribute("line_base_y",
-                            String.valueOf(styledResponse.getLineBaseY()));
-                } 
-                
-                responseWriter.writeEndElement();
-                responseWriter.writeCharacters(EOL);
-        
+			responseWriter.writeStartElement("response");
+			responseWriter.writeAttribute("object_name", response.getName());
+			responseWriter.writeAttribute("type", response.getGazeType());
+			responseWriter.writeAttribute("x", String.valueOf(response.getGaze().getX()));
+			responseWriter.writeAttribute("y", String.valueOf(response.getGaze().getY()));
+			responseWriter.writeAttribute("timestamp", String.valueOf(response.getGaze().getTimestamp()));
+			responseWriter.writeAttribute("event_time", String.valueOf(response.getGaze().getEventTime()));
+			
+			if (response instanceof IStyledTextGazeResponse) {
+			    IStyledTextGazeResponse styledResponse = (IStyledTextGazeResponse) response;
+			    responseWriter.writeAttribute("path", styledResponse.getPath());
+			    responseWriter.writeAttribute("line_height", String.valueOf(styledResponse.getLineHeight()));
+			    responseWriter.writeAttribute("font_height", String.valueOf(styledResponse.getFontHeight()));
+			    responseWriter.writeAttribute("line", String.valueOf(styledResponse.getLine()));
+			    responseWriter.writeAttribute("col", String.valueOf(styledResponse.getCol()));
+			    responseWriter.writeAttribute("line_base_x", String.valueOf(styledResponse.getLineBaseX()));
+			    responseWriter.writeAttribute("line_base_y", String.valueOf(styledResponse.getLineBaseY()));
+			} 
+			
+			responseWriter.writeEndElement();
+			responseWriter.writeCharacters(EOL);        
         } catch (XMLStreamException e) { /* ignore write errors */ }
     }
 

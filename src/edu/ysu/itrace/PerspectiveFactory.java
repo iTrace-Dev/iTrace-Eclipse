@@ -11,8 +11,7 @@ public class PerspectiveFactory implements IPerspectiveFactory {
     private static final float PROJECT_EXPOLORER_RATIO = 0.20f;
     private static final float BOTTOM_FOLDER_RATIO = 0.75f;
 
-    private static final String BOTTOM_FOLDER_ID
-            = "edu.ysu.itrace.BottomFolder";
+    private static final String BOTTOM_FOLDER_ID = "edu.ysu.itrace.BottomFolder";
     private static final String CONTROL_VIEW = "edu.ysu.itrace.controlview";
 
 
