@@ -2,7 +2,6 @@ package edu.ysu.itrace.solvers;
 
 import edu.ysu.itrace.gaze.IGazeResponse;
 
-
 /**
  * Defines a minimal interface for passing data to a solver.
  */

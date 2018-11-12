@@ -1,6 +1,7 @@
 package edu.ysu.itrace.gaze;
 
 import edu.ysu.itrace.Gaze;
+import edu.ysu.itrace.gaze.handlers.IGazeHandler;
 
 /**
  * Defines a response to a gaze event. Returned by objects implementing

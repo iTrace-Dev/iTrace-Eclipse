@@ -1,16 +1,12 @@
 package edu.ysu.itrace;
 
-import java.util.ArrayList;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 import org.eclipse.e4.core.services.events.IEventBroker;
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.browser.Browser;
-import org.eclipse.swt.custom.StyledText;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.layout.GridData;
-import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.layout.RowLayout;
 import org.eclipse.swt.widgets.Button;
@@ -21,27 +17,19 @@ import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.IEditorPart;
 import org.eclipse.ui.IEditorReference;
 import org.eclipse.ui.IPartListener2;
-import org.eclipse.ui.IWorkbenchPart;
 import org.eclipse.ui.IWorkbenchPartReference;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.part.ViewPart;
 import org.osgi.service.event.Event;
 import org.osgi.service.event.EventHandler;
 
-
 /**
  * ViewPart for managing and controlling the plugin.
  */
 public class ControlView extends ViewPart implements IPartListener2, EventHandler{
-    public static final String KEY_ITRACE = "itrace";
-
     private Shell rootShell;
 
-    private CopyOnWriteArrayList<Control> grayedControls =
-            new CopyOnWriteArrayList<Control>();
-    
-    private ArrayList<IEditorReference> setupEditors = new ArrayList<IEditorReference>();
-
+    private CopyOnWriteArrayList<Control> grayedControls = new CopyOnWriteArrayList<Control>();
     private IEventBroker eventBroker;
 
     @Override
@@ -72,7 +60,6 @@ public class ControlView extends ViewPart implements IPartListener2, EventHandle
         trackingButton.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true,
                 1, 1));
         trackingButton.setText("Connect to server");
-        Point size = trackingButton.computeSize(SWT.DEFAULT, SWT.DEFAULT);
         trackingButton.setSize(200, 50);
         trackingButton.addSelectionListener(new SelectionAdapter() {
             @Override
@@ -118,7 +105,6 @@ public class ControlView extends ViewPart implements IPartListener2, EventHandle
             	if(success != displayGazeCursor.getSelection()) displayGazeCursor.setSelection(false);
             }
         });
-
         //Tuning composite end.
         
         //Solvers composite begin.
@@ -126,46 +112,44 @@ public class ControlView extends ViewPart implements IPartListener2, EventHandle
         solversComposite.setLayout(new GridLayout(2, false));
         // Configure solvers here.
         
-            
-       final Button xmlSolverEnabled =
-    		   new Button(solversComposite, SWT.CHECK);
-       xmlSolverEnabled.setText("XML Export");
-       xmlSolverEnabled.setSelection(true);
-       xmlSolverEnabled.addSelectionListener(new SelectionAdapter() {
-            @Override
-            public void widgetSelected(SelectionEvent e) {
-               		if (xmlSolverEnabled.getSelection()) {
-               			ITrace.getDefault().setXmlOutput(true);
-               		} else {
-               			ITrace.getDefault().setXmlOutput(false);
-               		}
-           }
-       });
-       grayedControls.addIfAbsent(xmlSolverEnabled);
-       final Button xmlSolverConfig = new Button(solversComposite, SWT.PUSH);
-       xmlSolverConfig.setText("...");
-       xmlSolverConfig.addSelectionListener(new SelectionAdapter() {
-            @Override
-            public void widgetSelected(SelectionEvent e) {
-               		ITrace.getDefault().displayXmlExportFile();
-            }
-       });
-       grayedControls.addIfAbsent(xmlSolverConfig);
-       //Solver Composite end. 
-        
-    
-        
-        //Filter composite begin.
-        final Composite filterComposite = new Composite(parent, SWT.NONE);
-        filterComposite.setLayout(new GridLayout(2, false));
-        
-        //Filter composite end.
+		final Button xmlSolverEnabled = new Button(solversComposite, SWT.CHECK);
+		xmlSolverEnabled.setText("XML Export");
+		xmlSolverEnabled.setSelection(true);
+		xmlSolverEnabled.addSelectionListener(new SelectionAdapter() {
+			
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				if (xmlSolverEnabled.getSelection()) {
+					ITrace.getDefault().setXmlOutput(true);
+				} else {
+					ITrace.getDefault().setXmlOutput(false);
+				}
+			}
+		});
+		
+		grayedControls.addIfAbsent(xmlSolverEnabled);
+		final Button xmlSolverConfig = new Button(solversComposite, SWT.PUSH);
+		xmlSolverConfig.setText("...");
+		xmlSolverConfig.addSelectionListener(new SelectionAdapter() {
+			
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				ITrace.getDefault().displayXmlExportFile();
+			}
+		});
+		grayedControls.addIfAbsent(xmlSolverConfig);
+		//Solver Composite end.
+		
+		//Filter composite begin.
+		final Composite filterComposite = new Composite(parent, SWT.NONE);
+		filterComposite.setLayout(new GridLayout(2, false));
+		
+		//Filter composite end.
     }
 
     @Override
     public void dispose() {
-        getSite().getWorkbenchWindow().getPartService()
-                .removePartListener(this);
+        getSite().getWorkbenchWindow().getPartService().removePartListener(this);
         super.dispose();
     }
 
@@ -187,21 +171,19 @@ public class ControlView extends ViewPart implements IPartListener2, EventHandle
     	if(partRef.getPart(false) instanceof IEditorPart) {
     		ITrace.getDefault().setActiveEditor((IEditorPart)partRef.getPart(false));
     		IEditorPart ep = (IEditorPart)partRef.getPart(true);
-    		ITrace.getDefault().setLineManager(ep.getEditorSite().getActionBars().getStatusLineManager());;
+    		ITrace.getDefault().setLineManager(ep.getEditorSite().getActionBars().getStatusLineManager());
     	}
     }
 
     @Override
     public void partClosed(IWorkbenchPartReference partRef) {
     	if(partRef instanceof IEditorReference){
-    		setupEditors.remove(partRef);
     		ITrace.getDefault().setActionBars(getViewSite().getActionBars());
-        	IEditorPart ep = (IEditorPart)partRef.getPart(true);
-        	ITrace.getDefault().removeHighlighter(ep);
-        	ITrace.getDefault().setActiveEditor(
-        			PlatformUI.getWorkbench().getActiveWorkbenchWindow()
-        			.getActivePage().getActiveEditor()
-        	);
+        	IEditorPart editorPart = (IEditorPart)partRef.getPart(true);
+        	ITrace.getDefault().removeEditor(editorPart);
+        	
+        	IEditorPart activeEditor = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage().getActiveEditor();
+        	ITrace.getDefault().setActiveEditor(activeEditor);
     	}
     }
 
@@ -219,101 +201,11 @@ public class ControlView extends ViewPart implements IPartListener2, EventHandle
 
     @Override
     public void partVisible(IWorkbenchPartReference partRef) {
-        setupControls(partRef);
-        HandlerBindManager.bind(partRef);
     }
 
     @Override
     public void partHidden(IWorkbenchPartReference partRef) {
-        HandlerBindManager.unbind(partRef);
     }
-
-
-    /**
-     * Find controls within a part, set it up to be used by iTrace,
-     * and extract meta-data from it.
-     * 
-     * @param partRef partRef that just became visible.
-     */
-    private void setupControls(IWorkbenchPartReference partRef) {
-    	IWorkbenchPart part = partRef.getPart(true);
-        Control control = part.getAdapter(Control.class);
-        //set up manager for control and managers for each child control if necessary
-        if (control != null) {
-        	setupControls(part, control);
-        } else {
-        	//Browser - always set up browser managers, no matter the partRef that
-        	//has become visible
-        	//not possible to get Browser control from a partRef
-        	Shell workbenchShell = partRef.getPage().getWorkbenchWindow().getShell();
-        	for (Control ctrl: workbenchShell.getChildren()) {
-        		setupBrowsers(ctrl);
-        	}
-        }
-    }
-    
-    /**
-     * Recursive helper function to find and set up Browser control managers
-     * @param control
-     */
-    private void setupBrowsers(Control control) {
-    
-    	if (control instanceof Browser) {
-    		setupControls(null, control);
-    	}
-    	
-    	//If composite, look through children.
-        if (control instanceof Composite) {
-            Composite composite = (Composite) control;
-
-            Control[] children = composite.getChildren();
-            if (children.length > 0 && children[0] != null) {
-               for (Control curControl : children)
-                   setupBrowsers(curControl);
-            }
-        }
-    }
-    
-    /**
-     * Recursive function for setting up children controls for a control if it is
-     * a composite and setting up the main control's manager.
-     * @param part
-     * @param control
-     */
-    private void setupControls(IWorkbenchPart part, Control control) {
-    	//If composite, setup children controls.
-        if (control instanceof Composite) {
-            Composite composite = (Composite) control;
-
-            Control[] children = composite.getChildren();
-            if (children.length > 0 && children[0] != null) {
-               for (Control curControl : children)
-                   setupControls(part, curControl);
-            }
-        }
-        
-        if (control instanceof StyledText) {
-        	//set up styled text manager if there is one
-        	setupStyledText((IEditorPart) part, (StyledText) control);
-        	
-        } 
-        //TODO: no control set up for a ProjectExplorer, since there isn't an need for 
-        //a Manager right now, might be needed in the future
-    }
-    
-    /**
-     * Recursive helper method for setupControls(IWorkbenchPartReference).
-     * 
-     * @param editor IEditorPart which owns the StyledText in the next
-     *               parameter.
-     * @param styledText StyledText to set up.
-     */
-    private void setupStyledText(IEditorPart editor, StyledText styledText) {
-        if (styledText.getData(KEY_ITRACE) == null)
-            styledText.setData(KEY_ITRACE, editor);
-    }
-
-    
 
     private void displayError(String message) {
         MessageBox error_box = new MessageBox(rootShell, SWT.ICON_ERROR);

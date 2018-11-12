@@ -4,7 +4,8 @@ import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
 
 import javax.swing.JPanel;
 import javax.swing.JWindow;
@@ -12,7 +13,11 @@ import javax.swing.JWindow;
 import org.eclipse.swt.graphics.Point;
 
 public class GazeCursorWindow extends JWindow{
+	private static final long serialVersionUID = 1L;
+
 	private class GazeCursorPanel extends JPanel{
+		private static final long serialVersionUID = 1L;
+		
 		public GazeCursorPanel() {
 			setSize(16,16);
 		}
@@ -26,25 +31,40 @@ public class GazeCursorWindow extends JWindow{
 		}
 	}
 		
-	    private Point centre = null;
+    private Point centre = null;
+    private final int pointCount = 10;
+    List<Integer> xPoints = new ArrayList<>();
+    List<Integer> yPoints = new ArrayList<>();
+    int totalX = 0;
+    int totalY = 0;
+    
+    public GazeCursorWindow() {
+        super.setLocation(345, 332);
+        setSize(16,16);
+        setBackground(new Color(0,0,255,0));
+        JPanel gazeCursorPanel = new GazeCursorPanel();
+        gazeCursorPanel.setOpaque(false);
+        add(gazeCursorPanel);
+        centre = new Point(8,8);
+        setAlwaysOnTop(true);        
+    }
 
-	    public GazeCursorWindow() {
-	        super.setLocation(345, 332);
-	        setSize(16,16);
-	        setBackground(new Color(0,0,255,0));
-	        JPanel gazeCursorPanel = new GazeCursorPanel();
-	        gazeCursorPanel.setOpaque(false);
-	        add(gazeCursorPanel);
-	        centre = new Point(8,8);
-	        setAlwaysOnTop(true);
-	    }
-
-	    public void setLocation(int x, int y) {
-	    	
-	    	/* Need to think of a better way to smoothen the crosshair. It works for now */
-	    	 
-	    	super.setLocation(x - centre.x, y - centre.y);
-	        
-	    }
+    public void setLocation(int x, int y) {
+    	// Keep a rolling average of the previous points
+    	xPoints.add(x);
+		yPoints.add(y);
+		totalX += x;
+		totalY += y;
 		
-	}
+		if(xPoints.size() > this.pointCount) {
+			totalX -= xPoints.get(0);
+			totalY -= yPoints.get(0);
+			xPoints.remove(0);
+			yPoints.remove(0);
+		}
+
+        int smoothedX = totalX / xPoints.size();
+        int smoothedY = totalY / yPoints.size();
+    	super.setLocation(smoothedX - centre.x, smoothedY - centre.y);        
+    }
+}
