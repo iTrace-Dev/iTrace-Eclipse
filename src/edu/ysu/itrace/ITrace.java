@@ -160,11 +160,6 @@ public class ITrace extends AbstractUIPlugin implements EventHandler {
     	else return connectToServer();
     }
     
-    public boolean displayGazeCursor(boolean display){
-        connectionManager.showGazeCursor(display);	
-    	return display;
-    }
-    
     public void setActiveEditor(IEditorPart editorPart){
     	activeEditor = editorPart;
     	if(!tokenHighlighters.containsKey(editorPart)){

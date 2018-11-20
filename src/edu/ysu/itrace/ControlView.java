@@ -85,7 +85,7 @@ public class ControlView extends ViewPart implements IPartListener2, EventHandle
         
         //Tuning Composite Start.
         final Composite tuningComposite = new Composite(parent, SWT.NONE);
-        tuningComposite.setLayout(new RowLayout(SWT.VERTICAL));
+        tuningComposite.setLayout(new GridLayout(2, false));
 
         final Button highlight_tokens = new Button(tuningComposite, SWT.CHECK);
         highlight_tokens.setText("Highlight Tokens");
@@ -94,16 +94,6 @@ public class ControlView extends ViewPart implements IPartListener2, EventHandle
             public void widgetSelected(SelectionEvent e) {
         		ITrace.getDefault().activateHighlights();
         	}
-        });
-        
-        final Button displayGazeCursor = new Button(tuningComposite, SWT.CHECK);
-        displayGazeCursor.setText("Display Reticle");
-        displayGazeCursor.addSelectionListener(new SelectionAdapter() {
-            @Override
-            public void widgetSelected(SelectionEvent e) {
-            	boolean success = ITrace.getDefault().displayGazeCursor(displayGazeCursor.getSelection());
-            	if(success != displayGazeCursor.getSelection()) displayGazeCursor.setSelection(false);
-            }
         });
         //Tuning composite end.
         

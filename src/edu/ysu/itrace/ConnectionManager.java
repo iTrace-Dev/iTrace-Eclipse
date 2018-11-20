@@ -5,10 +5,8 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.Socket;
 
-import javax.swing.JWindow;
 import org.eclipse.e4.core.services.events.IEventBroker;
 import org.eclipse.ui.PlatformUI;
-import edu.ysu.itrace.GazeCursorWindow;
 
 public class ConnectionManager {
 	
@@ -16,7 +14,6 @@ public class ConnectionManager {
 	private BufferedReader reader;
 	private String data = "";
 	private IEventBroker eventBroker;
-	private JWindow gazeCursorWindow = new GazeCursorWindow();
 	public String dirLocation = "";
 	
 	ConnectionManager(){
@@ -59,8 +56,6 @@ public class ConnectionManager {
 							
 							long timestamp = Long.parseLong(dataSplit[1]);
 							Gaze gaze = new Gaze(x,y,timestamp, dirLocation);
-							
-							gazeCursorWindow.setLocation((int)x, (int)y);
 							eventBroker.post("iTrace/newgaze", gaze);
 							
 						} catch (IOException e) {
@@ -75,9 +70,6 @@ public class ConnectionManager {
 		}
 	}
 	
-	public void showGazeCursor(boolean display) {
-		gazeCursorWindow.setVisible(display);
-	}
 	
 	void endSocketConnection() {
 		try {
