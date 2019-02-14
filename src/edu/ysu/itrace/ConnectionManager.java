@@ -8,18 +8,27 @@ import java.net.Socket;
 import org.eclipse.e4.core.services.events.IEventBroker;
 import org.eclipse.ui.PlatformUI;
 
+import edu.ysu.itrace.preferences.ITracePreferenceConstants;
+
 public class ConnectionManager {
 	
 	private Socket socket;
 	private BufferedReader reader;
-	private String data = "";
+	private String data;
 	private IEventBroker eventBroker;
-	public String dirLocation = "";
+	public String dirLocation;
 	
-	ConnectionManager(){
+	
+	ConnectionManager() {
 		eventBroker = PlatformUI.getWorkbench().getService(IEventBroker.class);
+
+		dirLocation = "";
+	}
+	
+	public void startConnection() {
 		try{
-			socket = new Socket("localhost", 8008);
+			int portNumber = ITrace.getDefault().getPreferenceStore().getInt(ITracePreferenceConstants.PREF_SOCKET_PORT_NUMBER);
+			socket = new Socket("localhost", portNumber);
 			reader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
 			
 			Thread socketReaderThread = new Thread() {
@@ -68,8 +77,7 @@ public class ConnectionManager {
 		}catch(IOException ex){
 			ex.printStackTrace();
 		}
-	}
-	
+	}	
 	
 	void endSocketConnection() {
 		try {

@@ -39,14 +39,14 @@
    <extension
          point="org.eclipse.core.runtime.preferences">
       <initializer
-            class="edu.ysu.itrace.preferences.PreferenceInitializer">
+            class="edu.ysu.itrace.preferences.ITracePreferenceInitializer">
       </initializer>
    </extension>
    <extension
          point="org.eclipse.ui.preferencePages">
       <page
-            class="edu.ysu.itrace.preferences.PluginPreferences"
-            id="edu.ysu.itrace.preferences.PluginPreferences"
+            class="edu.ysu.itrace.preferences.ITracePreferencePage"
+            id="edu.ysu.itrace.preferences.ITracePreferencePage"
             name="iTrace">
       </page>
    </extension>

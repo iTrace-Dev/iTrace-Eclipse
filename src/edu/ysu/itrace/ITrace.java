@@ -67,6 +67,7 @@ public class ITrace extends AbstractUIPlugin implements EventHandler {
 				editorHandlers.put(editorPart, new StyledTextGazeHandler(styledText, editorPart));
 			}
     	}
+    	connectionManager = new ConnectionManager();
     	//iTrace invokes the events to the Eventbroker and these events are subscribed in an order.
     	eventBroker = PlatformUI.getWorkbench().getService(IEventBroker.class);
     	eventBroker.subscribe("iTrace/newgaze", this);
@@ -129,11 +130,11 @@ public class ITrace extends AbstractUIPlugin implements EventHandler {
     }
     
     public boolean connectToServer() {
-    	connectionManager = new ConnectionManager();
         if (recording) {
             eventBroker.post("iTrace/error", "Tracking is already in progress.");
             return recording;
         }
+    	connectionManager.startConnection();
         ITrace.getDefault().sessionStartTime = System.nanoTime();
         recording = true;
         return recording;
@@ -145,7 +146,6 @@ public class ITrace extends AbstractUIPlugin implements EventHandler {
             return false;
         }
         connectionManager.endSocketConnection();
-        connectionManager = null;
         if (xmlSolver.initialized) {
         	xmlSolver.initialized = false;
         	xmlSolver.dispose();
@@ -187,7 +187,7 @@ public class ITrace extends AbstractUIPlugin implements EventHandler {
 		for(TokenHighlighter tokenHighlighter: tokenHighlighters.values()){
 			tokenHighlighter.setShow(showTokenHighlights);
 		}
-    }    
+    }
     
     /**
      * Finds the control under the specified screen coordinates and calls its
