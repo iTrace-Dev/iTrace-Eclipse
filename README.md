@@ -8,7 +8,6 @@ applications in code reading, code summarization as well as providing recommenda
 * Eclipse IDE (Windows users should install Eclipse IDE for Java EE Developers)
 * Java development kit (JDK)
 * Apache IvyDE Eclipse Plugin (https://ant.apache.org/ivy/ivyde/)
-* C++ compiler: g++ on UNIX or Microsoft Visual Studio on Microsoft Windows
 
 ## How to Build and Run
 1. Install all requirements and resolve Ivy dependencies (secondary click
