@@ -230,33 +230,35 @@ public class ITrace extends AbstractUIPlugin implements EventHandler {
    			// This entire function needs to be re-written. This works for now, but is one of the main reasons of inefficiency while working with 
    		    // high-frequency trackers. 
    		    // This involves a lot of real-time processing.
-   			 if (g != null) {
-   	             if(!rootShell.isDisposed()){
-   	            	 int screenX = (int) (g.getX());
-   		             int screenY = (int) (g.getY());
-   		             IGazeResponse response;
-   	            	 response = handleGaze(screenX, screenY, g);
-   	            	 
-   	            	 if (response != null) {
-						if(recording){
-							statusLineManager.setMessage(String.valueOf(response.getGaze().getSessionTime()));
-							registerTime = System.currentTimeMillis();
-							if(xmlOutput) {
-								eventBroker.post("iTrace/xmlOutput", response);
-							}
-						}
-						 
+
+			if(recording){
+				statusLineManager.setMessage(String.valueOf(g.getEventTime()));
+				statusLineManager.update(true);
+				registerTime = System.currentTimeMillis();
+			} else {
+				if((System.currentTimeMillis()-registerTime) > 2000){
+		 			statusLineManager.setMessage("");
+				}
+			}
+			if (g != null) {
+				if(!rootShell.isDisposed()){
+					int screenX = (int) (g.getX());
+					int screenY = (int) (g.getY());
+					IGazeResponse response;
+					response = handleGaze(screenX, screenY, g);
+	            	 
+					if (response != null) {
+						if(xmlOutput) {
+							eventBroker.post("iTrace/xmlOutput", response);
+	   	  				}
+	   	  				
 						if(response instanceof IStyledTextGazeResponse && response != null && showTokenHighlights){
 							IStyledTextGazeResponse styledTextResponse = (IStyledTextGazeResponse)response;
 							eventBroker.post("iTrace/newstresponse", styledTextResponse);
 						}
-   	            	 }
-   		         }else{
-   		         	if((System.currentTimeMillis()-registerTime) > 2000){
-   		         		statusLineManager.setMessage("");
-   		         	}
-   		         }
-   	         }
+					}
+				}
+			}
    		}
    	}
 }
