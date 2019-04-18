@@ -19,7 +19,7 @@ public interface ISolver {
     /**
      * Configure the export filename.
      */
-    public void config(String dirLocation);
+    public void config(String filename, String sessionId);
     
     /**
      * Launch dialog to display the export filename.

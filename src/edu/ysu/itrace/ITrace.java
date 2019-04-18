@@ -51,7 +51,6 @@ public class ITrace extends AbstractUIPlugin implements EventHandler {
     private long registerTime = 2000;
     private IEventBroker eventBroker;
     private Shell rootShell;
-    private String dirLocation = "";
     
     /**
      * The constructor
@@ -154,8 +153,8 @@ public class ITrace extends AbstractUIPlugin implements EventHandler {
     		return true;
     	}
 
-		dirLocation = directoryPath + "/" + "eclipse_" + sessionId + ".xml";
-		xmlSolver.config(dirLocation);
+		String filename = directoryPath + "/" + "eclipse_" + System.currentTimeMillis() + ".xml";
+		xmlSolver.config(filename, sessionId);
 		xmlSolver.init();
 		isRecording = true;
 		return true;
