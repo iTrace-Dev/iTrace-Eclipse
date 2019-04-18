@@ -13,13 +13,11 @@ public class Gaze {
     private long systemTime;
     private Timestamp timestamp;
     private String timestampString;
-    private String directoryName;
 
-    public Gaze(double x, double y, long eventTime, String directory) {
+    public Gaze(double x, double y, long eventTime) {
     	this.x = x;
     	this.y = y;
-    	this.eventTime = eventTime;        
-    	this.directoryName = directory;
+    	this.eventTime = eventTime;
     	
 	    this.calendar = Calendar.getInstance();
 	    this.nanoTime = System.nanoTime();
@@ -57,16 +55,8 @@ public class Gaze {
     public long getEventTime() {
         return eventTime;
     }
-
-    public long getSessionTime(){
-    	return nanoTime - ITrace.getDefault().sessionStartTime;
-    }
     
     public String getTimestamp(){
     	return timestampString;
-    }
-    
-    public String getDirectory() {
-    	return directoryName;
-    }
+    }    
 }

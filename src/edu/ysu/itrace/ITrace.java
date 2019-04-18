@@ -40,7 +40,8 @@ public class ITrace extends AbstractUIPlugin implements EventHandler {
     private HashMap<IEditorPart,IGazeHandler> editorHandlers = new HashMap<IEditorPart,IGazeHandler>();
     private boolean showTokenHighlights = false;
 
-    private volatile boolean recording;
+    private volatile boolean isConnected;
+    private boolean isRecording;
     private XMLGazeExportSolver xmlSolver;
     private boolean xmlOutput = true;
     private ConnectionManager connectionManager;
@@ -71,6 +72,8 @@ public class ITrace extends AbstractUIPlugin implements EventHandler {
     	//iTrace invokes the events to the Eventbroker and these events are subscribed in an order.
     	eventBroker = PlatformUI.getWorkbench().getService(IEventBroker.class);
     	eventBroker.subscribe("iTrace/newgaze", this);
+    	eventBroker.subscribe("iTrace/sessionstart", this);
+    	eventBroker.subscribe("iTrace/sessionend", this);
     	xmlSolver = new XMLGazeExportSolver();
     	eventBroker.subscribe("iTrace/xmlOutput", xmlSolver);
     }
@@ -90,7 +93,7 @@ public class ITrace extends AbstractUIPlugin implements EventHandler {
      * @see org.eclipse.ui.plugin.AbstractUIPlugin#stop(org.osgi.framework.BundleContext)
      */
     public void stop(BundleContext context) throws Exception {
-    	if (recording) {
+    	if (isConnected) {
             disconnectFromServer();
         }
         plugin = null;
@@ -130,33 +133,63 @@ public class ITrace extends AbstractUIPlugin implements EventHandler {
     }
     
     public boolean connectToServer() {
-        if (recording) {
+        if (isConnected) {
             eventBroker.post("iTrace/error", "Tracking is already in progress.");
-            return recording;
+            return isConnected;
         }
     	connectionManager.startConnection();
         ITrace.getDefault().sessionStartTime = System.nanoTime();
-        recording = true;
-        return recording;
+        isConnected = true;
+        return isConnected;
+    }
+    
+    public boolean startSession(String directoryPath, String sessionId) {
+    	if(isConnected == false) {
+    		eventBroker.post("iTrace/error", "Cannot Start Session. Plugin is not Connected to Core.");
+    		return false;
+    	}
+    	
+    	if(isRecording) {
+    		eventBroker.post("iTrace/error", "Session already started");
+    		return true;
+    	}
+
+		dirLocation = directoryPath + "/" + "eclipse_" + sessionId + ".xml";
+		xmlSolver.config(dirLocation);
+		xmlSolver.init();
+		isRecording = true;
+		return true;
     }
     
     public boolean disconnectFromServer() {
-        if (!recording) {
+        if (!isConnected) {
         	eventBroker.post("iTrace/error", "Tracking is not in progress.");
             return false;
         }
         connectionManager.endSocketConnection();
-        if (xmlSolver.initialized) {
-        	xmlSolver.initialized = false;
+        if (isRecording) {
         	xmlSolver.dispose();
         }
         statusLineManager.setMessage("");
-        recording = false;
+        isConnected = false;
+        isRecording = false;
         return true;
+    }
+    
+    public boolean endSession()
+    {
+    	if(!isRecording) {
+    		eventBroker.post("iTrace/error", "No Session has started");
+    		return false;
+    	}
+    	
+    	xmlSolver.dispose();
+    	isRecording = false;
+    	return true;
     }
 
     public boolean toggleTracking(){
-    	if(recording) return disconnectFromServer();
+    	if(isConnected) return disconnectFromServer();
     	else return connectToServer();
     }
     
@@ -220,18 +253,12 @@ public class ITrace extends AbstractUIPlugin implements EventHandler {
    		if(event.getTopic() == "iTrace/newgaze"){
    			String[] propertyNames = event.getPropertyNames();
    			Gaze g = (Gaze)event.getProperty(propertyNames[0]);
-   			//Fetching the directory location//
-   			String directoryPath = g.getDirectory();
-   			String eventID = directoryPath.substring(directoryPath.length() - 10);
-   			dirLocation = directoryPath + "/" + "eclipse_" + eventID + ".xml";
-   			// Configure the XML solver with the directory location
-   			xmlSolver.config(dirLocation); 
    			//******************************//
    			// This entire function needs to be re-written. This works for now, but is one of the main reasons of inefficiency while working with 
    		    // high-frequency trackers. 
    		    // This involves a lot of real-time processing.
 
-			if(recording){
+			if(isConnected){
 				statusLineManager.setMessage(String.valueOf(g.getEventTime()));
 				statusLineManager.update(true);
 				registerTime = System.currentTimeMillis();
@@ -259,6 +286,14 @@ public class ITrace extends AbstractUIPlugin implements EventHandler {
 					}
 				}
 			}
+   		}
+   		else if(event.getTopic() == "iTrace/sessionstart") {
+   			String[] propertyNames = event.getPropertyNames();
+   			String[] eventData = (String[])event.getProperty(propertyNames[0]);
+   			startSession(eventData[2], eventData[0]);
+   		}
+   		else if(event.getTopic() == "iTrace/sessionend") {
+   			endSession();
    		}
    	}
 }

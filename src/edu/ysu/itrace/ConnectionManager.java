@@ -16,13 +16,12 @@ public class ConnectionManager {
 	private BufferedReader reader;
 	private String data;
 	private IEventBroker eventBroker;
-	public String dirLocation;
-	
+	public String SessionId;
+	public String SessionTimestamp;
+	public boolean isRecording = false;
 	
 	ConnectionManager() {
 		eventBroker = PlatformUI.getWorkbench().getService(IEventBroker.class);
-
-		dirLocation = "";
 	}
 	
 	public void startConnection() {
@@ -43,9 +42,13 @@ public class ConnectionManager {
 							}
 							String[] dataSplit = data.split(",");
 							
-							if (dataSplit[0].equalsIgnoreCase("session")) {
-								String tmp = dataSplit[1];
-								dirLocation = tmp;
+							if (dataSplit[0].equalsIgnoreCase("session_start")) {
+								eventBroker.post("iTrace/sessionstart", new String[] {dataSplit[1], dataSplit[2], dataSplit[3]});
+								continue;
+							}
+							
+							if(dataSplit[0].equalsIgnoreCase("session_end")) {
+								eventBroker.post("iTrace/sessionend", data);
 								continue;
 							}
 							
@@ -64,7 +67,7 @@ public class ConnectionManager {
 							} 
 							
 							long timestamp = Long.parseLong(dataSplit[1]);
-							Gaze gaze = new Gaze(x,y,timestamp, dirLocation);
+							Gaze gaze = new Gaze(x,y,timestamp);
 							eventBroker.post("iTrace/newgaze", gaze);
 							
 						} catch (IOException e) {
