@@ -153,7 +153,7 @@ public class ITrace extends AbstractUIPlugin implements EventHandler {
     		return true;
     	}
 
-		String filename = directoryPath + "/" + "eclipse_" + System.currentTimeMillis() + ".xml";
+		String filename = directoryPath + "/itrace_eclipse-" + System.currentTimeMillis() + ".xml";
 		xmlSolver.config(filename, sessionId);
 		xmlSolver.init();
 		isRecording = true;
