@@ -194,15 +194,18 @@ public class ITrace extends AbstractUIPlugin implements EventHandler {
     
     public void setActiveEditor(IEditorPart editorPart){
     	activeEditor = editorPart;
-    	if(!tokenHighlighters.containsKey(editorPart)){
-    		tokenHighlighters.put(editorPart, new TokenHighlighter(editorPart,showTokenHighlights));
+    	
+    	if(activeEditor != null) {        	
+        	if(!tokenHighlighters.containsKey(editorPart)){
+        		tokenHighlighters.put(editorPart, new TokenHighlighter(editorPart,showTokenHighlights));
+        	}
+        	if(!editorHandlers.containsKey(editorPart)) {
+    	    	StyledText styledText = (StyledText) editorPart.getAdapter(Control.class);
+    	    	if(styledText != null){
+    	    		editorHandlers.put(editorPart, new StyledTextGazeHandler(styledText, editorPart));
+    			}
+        	}    	
     	}
-    	if(!editorHandlers.containsKey(editorPart)) {
-	    	StyledText styledText = (StyledText) editorPart.getAdapter(Control.class);
-	    	if(styledText != null){
-	    		editorHandlers.put(editorPart, new StyledTextGazeHandler(styledText, editorPart));
-			}
-    	}    	
     }
 
     public void removeEditor(IEditorPart editorPart){
