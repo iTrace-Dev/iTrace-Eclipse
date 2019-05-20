@@ -4,6 +4,7 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.Socket;
+import java.util.concurrent.Semaphore;
 
 import org.eclipse.e4.core.services.events.IEventBroker;
 import org.eclipse.ui.PlatformUI;
@@ -16,12 +17,36 @@ public class ConnectionManager {
 	private BufferedReader reader;
 	private String data;
 	private IEventBroker eventBroker;
+	private boolean dataReady;
+	private Gaze currentGaze;
 	public String SessionId;
 	public String SessionTimestamp;
 	public boolean isRecording = false;
+	public Semaphore semaphore;
 	
 	ConnectionManager() {
 		eventBroker = PlatformUI.getWorkbench().getService(IEventBroker.class);
+		semaphore = new Semaphore(1);
+	}
+	
+	public boolean isDataReady() {
+		return dataReady;
+	}
+	
+	public Gaze popCurrentGaze() {
+		Gaze result = null;
+		
+		try {
+			semaphore.acquire();
+			result = currentGaze;
+			currentGaze = null;
+			dataReady = false;
+			semaphore.release();
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
+		
+		return result;
 	}
 	
 	public void startConnection() {
@@ -68,11 +93,16 @@ public class ConnectionManager {
 							
 							long timestamp = Long.parseLong(dataSplit[1]);
 							Gaze gaze = new Gaze(x,y,timestamp);
-							eventBroker.post("iTrace/newgaze", gaze);
 							
+							semaphore.acquire();
+							currentGaze = gaze;
+							dataReady = true;
+							semaphore.release();							
 						} catch (IOException e) {
 							e.printStackTrace();
-						}	
+						} catch (InterruptedException e) {
+							e.printStackTrace();
+						}
 					}
 				}				
 			};

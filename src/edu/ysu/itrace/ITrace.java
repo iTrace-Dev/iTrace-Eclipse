@@ -1,6 +1,8 @@
 package edu.ysu.itrace;
 
 import java.util.HashMap;
+import java.util.Timer;
+import java.util.TimerTask;
 
 import org.eclipse.e4.core.services.events.IEventBroker;
 import org.eclipse.jface.action.IStatusLineManager;
@@ -8,6 +10,7 @@ import org.eclipse.swt.custom.StyledText;
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.widgets.Control;
+import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.IActionBars;
 import org.eclipse.ui.IEditorPart;
@@ -157,6 +160,15 @@ public class ITrace extends AbstractUIPlugin implements EventHandler {
 		xmlSolver.config(filename, sessionId);
 		xmlSolver.init();
 		isRecording = true;
+		
+		Thread processThread = new Thread() {
+			@Override
+			public void run() {
+				processData();
+			}
+		};
+		processThread.start();
+		
 		return true;
     }
     
@@ -202,7 +214,7 @@ public class ITrace extends AbstractUIPlugin implements EventHandler {
 	    	if(styledText != null){
 	    		editorHandlers.put(editorPart, new StyledTextGazeHandler(styledText, editorPart));
 			}
-    	}    	
+    	}
     }
 
     public void removeEditor(IEditorPart editorPart){
@@ -247,46 +259,59 @@ public class ITrace extends AbstractUIPlugin implements EventHandler {
     	return null;
     }
     
+    public void processData() {
+		while(isRecording) {
+			if(connectionManager.isDataReady()) {	
+				Gaze g = connectionManager.popCurrentGaze();
+				
+				// Have to run code that interfaces with UI in SWT thread
+				// Running this thread in SWT thread causes UI to freeze
+				Display.getDefault().syncExec(new Runnable() {
+					@Override
+					public void run() {
+			    		if(isConnected){
+							statusLineManager.setMessage(String.valueOf(g.getEventTime()));
+							statusLineManager.update(true);
+							registerTime = System.currentTimeMillis();
+						} else {
+							if((System.currentTimeMillis()-registerTime) > 2000){
+					 			statusLineManager.setMessage("");
+							}
+						}						
+					}					
+				});
+				if (g != null) {
+					if(!rootShell.isDisposed()){
+						int screenX = (int) (g.getX());
+						int screenY = (int) (g.getY());
+						Display.getDefault().syncExec(new Runnable() {
+							@Override
+							public void run() {
+								IGazeResponse response;
+								response = handleGaze(screenX, screenY, g);
+								if (response != null) {
+									if(xmlOutput) {
+										xmlSolver.process(response);
+				   	  				}
+				   	  				
+									if(response instanceof IStyledTextGazeResponse && response != null && showTokenHighlights){
+										IStyledTextGazeResponse styledTextResponse = (IStyledTextGazeResponse)response;
+										// Change to function call
+										eventBroker.post("iTrace/newstresponse", styledTextResponse);
+									}
+								}
+							}
+						});
+		            	 
+					}
+				}			}
+		}
+    	
+    }
+    
     @Override
    	public void handleEvent(Event event) {
-   		if(event.getTopic() == "iTrace/newgaze"){
-   			String[] propertyNames = event.getPropertyNames();
-   			Gaze g = (Gaze)event.getProperty(propertyNames[0]);
-   			//******************************//
-   			// This entire function needs to be re-written. This works for now, but is one of the main reasons of inefficiency while working with 
-   		    // high-frequency trackers. 
-   		    // This involves a lot of real-time processing.
-
-			if(isConnected){
-				statusLineManager.setMessage(String.valueOf(g.getEventTime()));
-				statusLineManager.update(true);
-				registerTime = System.currentTimeMillis();
-			} else {
-				if((System.currentTimeMillis()-registerTime) > 2000){
-		 			statusLineManager.setMessage("");
-				}
-			}
-			if (g != null) {
-				if(!rootShell.isDisposed()){
-					int screenX = (int) (g.getX());
-					int screenY = (int) (g.getY());
-					IGazeResponse response;
-					response = handleGaze(screenX, screenY, g);
-	            	 
-					if (response != null) {
-						if(xmlOutput) {
-							eventBroker.post("iTrace/xmlOutput", response);
-	   	  				}
-	   	  				
-						if(response instanceof IStyledTextGazeResponse && response != null && showTokenHighlights){
-							IStyledTextGazeResponse styledTextResponse = (IStyledTextGazeResponse)response;
-							eventBroker.post("iTrace/newstresponse", styledTextResponse);
-						}
-					}
-				}
-			}
-   		}
-   		else if(event.getTopic() == "iTrace/sessionstart") {
+    	if(event.getTopic() == "iTrace/sessionstart") {
    			String[] propertyNames = event.getPropertyNames();
    			String[] eventData = (String[])event.getProperty(propertyNames[0]);
    			startSession(eventData[2], eventData[0]);
