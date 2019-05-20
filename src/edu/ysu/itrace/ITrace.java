@@ -218,13 +218,6 @@ public class ITrace extends AbstractUIPlugin implements EventHandler {
     			}
         	}    	
     	}
-		
-    	if(!editorHandlers.containsKey(editorPart)) {
-	    	StyledText styledText = (StyledText) editorPart.getAdapter(Control.class);
-	    	if(styledText != null){
-	    		editorHandlers.put(editorPart, new StyledTextGazeHandler(styledText, editorPart));
-			}
-    	}
     }
 
     public void removeEditor(IEditorPart editorPart){
