@@ -2,6 +2,7 @@ package edu.ysu.itrace;
 
 import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.Socket;
 import java.util.concurrent.Semaphore;
@@ -14,7 +15,8 @@ import edu.ysu.itrace.preferences.ITracePreferenceConstants;
 public class ConnectionManager {
 	
 	private Socket socket;
-	private BufferedReader reader;
+	private InputStream inputStream;
+	private BufferedReader reader;	
 	private String data;
 	private IEventBroker eventBroker;
 	private boolean dataReady;
@@ -53,7 +55,8 @@ public class ConnectionManager {
 		try{
 			int portNumber = ITrace.getDefault().getPreferenceStore().getInt(ITracePreferenceConstants.PREF_SOCKET_PORT_NUMBER);
 			socket = new Socket("localhost", portNumber);
-			reader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+			inputStream = socket.getInputStream();
+			reader = new BufferedReader(new InputStreamReader(inputStream));
 			
 			Thread socketReaderThread = new Thread() {
 
@@ -62,6 +65,9 @@ public class ConnectionManager {
 					while(socket.isClosed() == false) {
 						try {
 							Thread.yield();
+							if(inputStream.available() == 0) {
+								continue;
+							}
 							data = reader.readLine();
 							if(data == null) {
 								continue;
