@@ -225,7 +225,7 @@ public class ITrace extends AbstractUIPlugin implements EventHandler {
     
     public void activateHighlights(){
     	showTokenHighlights = !showTokenHighlights;
-		if(!tokenHighlighters.containsKey(activeEditor)){
+		if(activeEditor != null && !tokenHighlighters.containsKey(activeEditor)){
 			tokenHighlighters.put(activeEditor, new TokenHighlighter(activeEditor, showTokenHighlights));
 			if(activeEditor == null) return;
 		}
