@@ -1,8 +1,6 @@
 package edu.ysu.itrace;
 
 import java.util.HashMap;
-import java.util.Timer;
-import java.util.TimerTask;
 
 import org.eclipse.e4.core.services.events.IEventBroker;
 import org.eclipse.jface.action.IStatusLineManager;
@@ -264,6 +262,7 @@ public class ITrace extends AbstractUIPlugin implements EventHandler {
     
     public void processData() {
 		while(isRecording) {
+			Thread.yield();
 			if(connectionManager.isDataReady()) {	
 				Gaze g = connectionManager.popCurrentGaze();
 				
@@ -272,7 +271,7 @@ public class ITrace extends AbstractUIPlugin implements EventHandler {
 				Display.getDefault().syncExec(new Runnable() {
 					@Override
 					public void run() {
-			    		if(isConnected){
+			    		if(isConnected && g != null){
 							statusLineManager.setMessage(String.valueOf(g.getEventTime()));
 							statusLineManager.update(true);
 							registerTime = System.currentTimeMillis();
@@ -304,12 +303,11 @@ public class ITrace extends AbstractUIPlugin implements EventHandler {
 									}
 								}
 							}
-						});
-		            	 
+						});		            	 
 					}
-				}			}
-		}
-    	
+				}
+			}
+		}    	
     }
     
     @Override

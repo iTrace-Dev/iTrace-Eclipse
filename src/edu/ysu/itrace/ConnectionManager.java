@@ -61,6 +61,7 @@ public class ConnectionManager {
 				public void run() {
 					while(socket.isClosed() == false) {
 						try {
+							Thread.yield();
 							data = reader.readLine();
 							if(data == null) {
 								continue;
