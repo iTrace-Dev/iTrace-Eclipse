@@ -21,7 +21,7 @@
       <view
             class="edu.ysu.itrace.ControlView"
             id="edu.ysu.itrace.controlview"
-            name="itrace controller"
+            name="iTrace Eclipse Plugin"
             restorable="true">
       </view>
    </extension>
