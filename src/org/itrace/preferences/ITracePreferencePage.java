@@ -1,12 +1,11 @@
-package edu.ysu.itrace.preferences;
+package org.itrace.preferences;
 
 import org.eclipse.jface.preference.FieldEditorPreferencePage;
 import org.eclipse.jface.preference.IntegerFieldEditor;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.IWorkbenchPreferencePage;
-
-import edu.ysu.itrace.ITrace;
+import org.itrace.ITrace;
 
 public class ITracePreferencePage extends FieldEditorPreferencePage implements IWorkbenchPreferencePage {
 	

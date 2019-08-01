@@ -1,4 +1,4 @@
-package edu.ysu.itrace;
+package org.itrace;
 
 import java.sql.Timestamp;
 import java.util.Calendar;

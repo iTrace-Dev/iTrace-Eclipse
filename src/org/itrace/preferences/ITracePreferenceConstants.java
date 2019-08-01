@@ -1,6 +1,6 @@
-package edu.ysu.itrace.preferences;
+package org.itrace.preferences;
 
-import edu.ysu.itrace.ITrace;
+import org.itrace.ITrace;
 
 public class ITracePreferenceConstants {
 	public static final String _PREFIX = ITrace.PLUGIN_ID + ".";

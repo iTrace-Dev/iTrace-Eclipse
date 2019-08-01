@@ -1,9 +1,8 @@
-package edu.ysu.itrace.preferences;
+package org.itrace.preferences;
 
 import org.eclipse.core.runtime.preferences.AbstractPreferenceInitializer;
 import org.eclipse.jface.preference.IPreferenceStore;
-
-import edu.ysu.itrace.ITrace;
+import org.itrace.ITrace;
 
 public class ITracePreferenceInitializer extends AbstractPreferenceInitializer {
 

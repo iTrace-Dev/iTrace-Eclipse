@@ -1,4 +1,4 @@
-package edu.ysu.itrace.gaze.handlers;
+package org.itrace.gaze.handlers;
 
 import java.io.IOException;
 
@@ -9,9 +9,8 @@ import org.eclipse.swt.custom.StyledText;
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.ui.IEditorPart;
 import org.eclipse.ui.IFileEditorInput;
-
-import edu.ysu.itrace.Gaze;
-import edu.ysu.itrace.gaze.IStyledTextGazeResponse;
+import org.itrace.Gaze;
+import org.itrace.gaze.IStyledTextGazeResponse;
 
 /**
  * Implements the gaze handler interface for a StyledText widget.

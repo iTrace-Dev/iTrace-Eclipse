@@ -1,4 +1,4 @@
-package edu.ysu.itrace;
+package org.itrace;
 
 import java.util.concurrent.CopyOnWriteArrayList;
 

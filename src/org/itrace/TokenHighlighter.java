@@ -1,4 +1,4 @@
-package edu.ysu.itrace;
+package org.itrace;
 
 import org.eclipse.swt.custom.StyledText;
 import org.eclipse.swt.events.PaintEvent;
@@ -10,10 +10,10 @@ import org.eclipse.swt.widgets.Control;
 
 import org.eclipse.ui.IEditorPart;
 import org.eclipse.ui.PlatformUI;
+import org.itrace.gaze.IStyledTextGazeResponse;
 import org.osgi.service.event.Event;
 import org.osgi.service.event.EventHandler;
 
-import edu.ysu.itrace.gaze.IStyledTextGazeResponse;
 import java.util.ArrayList;
 import java.util.List;
 

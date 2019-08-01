@@ -1,4 +1,4 @@
-package edu.ysu.itrace;
+package org.itrace;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -9,8 +9,7 @@ import java.util.concurrent.Semaphore;
 
 import org.eclipse.e4.core.services.events.IEventBroker;
 import org.eclipse.ui.PlatformUI;
-
-import edu.ysu.itrace.preferences.ITracePreferenceConstants;
+import org.itrace.preferences.ITracePreferenceConstants;
 
 public class ConnectionManager {
 	

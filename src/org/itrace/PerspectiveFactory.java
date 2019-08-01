@@ -1,4 +1,4 @@
-package edu.ysu.itrace;
+package org.itrace;
 
 import org.eclipse.ui.IFolderLayout;
 import org.eclipse.ui.IPageLayout;
@@ -11,8 +11,8 @@ public class PerspectiveFactory implements IPerspectiveFactory {
     private static final float PROJECT_EXPOLORER_RATIO = 0.20f;
     private static final float BOTTOM_FOLDER_RATIO = 0.75f;
 
-    private static final String BOTTOM_FOLDER_ID = "edu.ysu.itrace.BottomFolder";
-    private static final String CONTROL_VIEW = "edu.ysu.itrace.controlview";
+    private static final String BOTTOM_FOLDER_ID = "org.itrace.BottomFolder";
+    private static final String CONTROL_VIEW = "org.itrace.controlview";
 
 
     @Override

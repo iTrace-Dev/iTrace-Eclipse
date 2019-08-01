@@ -1,4 +1,4 @@
-package edu.ysu.itrace.solvers;
+package org.itrace.solvers;
 
 import java.awt.Dimension;
 import java.awt.Toolkit;
@@ -16,11 +16,10 @@ import javax.xml.stream.XMLOutputFactory;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamWriter;
 
+import org.itrace.gaze.IGazeResponse;
+import org.itrace.gaze.IStyledTextGazeResponse;
 import org.osgi.service.event.Event;
 import org.osgi.service.event.EventHandler;
-
-import edu.ysu.itrace.gaze.IGazeResponse;
-import edu.ysu.itrace.gaze.IStyledTextGazeResponse;
 
 /**
  * Solver that simply dumps gaze data to disk in XML format.

@@ -1,4 +1,4 @@
-package edu.ysu.itrace.gaze;
+package org.itrace.gaze;
 
 /**
  * Defines an interface for gazes falling on StyledText widgets 
