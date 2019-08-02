@@ -96,39 +96,6 @@ public class ControlView extends ViewPart implements IPartListener2, EventHandle
         	}
         });
         //Tuning composite end.
-        
-        //Solvers composite begin.
-        final Composite solversComposite = new Composite(parent, SWT.NONE);
-        solversComposite.setLayout(new GridLayout(2, false));
-        // Configure solvers here.
-        
-		final Button xmlSolverEnabled = new Button(solversComposite, SWT.CHECK);
-		xmlSolverEnabled.setText("XML Export");
-		xmlSolverEnabled.setSelection(true);
-		xmlSolverEnabled.addSelectionListener(new SelectionAdapter() {
-			
-			@Override
-			public void widgetSelected(SelectionEvent e) {
-				if (xmlSolverEnabled.getSelection()) {
-					ITrace.getDefault().setXmlOutput(true);
-				} else {
-					ITrace.getDefault().setXmlOutput(false);
-				}
-			}
-		});
-		
-		grayedControls.addIfAbsent(xmlSolverEnabled);
-		final Button xmlSolverConfig = new Button(solversComposite, SWT.PUSH);
-		xmlSolverConfig.setText("...");
-		xmlSolverConfig.addSelectionListener(new SelectionAdapter() {
-			
-			@Override
-			public void widgetSelected(SelectionEvent e) {
-				ITrace.getDefault().displayXmlExportFile();
-			}
-		});
-		grayedControls.addIfAbsent(xmlSolverConfig);
-		//Solver Composite end.
 		
 		//Filter composite begin.
 		final Composite filterComposite = new Composite(parent, SWT.NONE);

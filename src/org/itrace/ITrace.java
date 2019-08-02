@@ -44,7 +44,6 @@ public class ITrace extends AbstractUIPlugin implements EventHandler {
 	private volatile boolean isConnected;
 	private boolean isRecording;
 	private XMLGazeExportSolver xmlSolver;
-	private boolean xmlOutput = true;
 	private ConnectionManager connectionManager;
 
 	private IActionBars actionBars;
@@ -130,15 +129,7 @@ public class ITrace extends AbstractUIPlugin implements EventHandler {
 	public void setLineManager(IStatusLineManager manager) {
 		statusLineManager = manager;
 	}
-
-	public void setXmlOutput(boolean value) {
-		xmlOutput = value;
-	}
-
-	public void displayXmlExportFile() {
-		xmlSolver.displayExportFile();
-	}
-
+	
 	public boolean connectToServer() {
 		if (isConnected) {
 			eventBroker.post("iTrace/error", "Tracking is already in progress.");
@@ -301,9 +292,7 @@ public class ITrace extends AbstractUIPlugin implements EventHandler {
 								IGazeResponse response;
 								response = handleGaze(screenX, screenY, g);
 								if (response != null) {
-									if (xmlOutput) {
-										xmlSolver.process(response);
-									}
+									xmlSolver.process(response);
 
 									if (response instanceof IStyledTextGazeResponse && response != null
 											&& showTokenHighlights) {
