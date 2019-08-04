@@ -6,7 +6,7 @@
       <perspective
             class="org.itrace.PerspectiveFactory"
             id="org.itrace.perspectivefactory"
-            name="itrace">
+            name="iTrace Eclipse Plugin">
       </perspective>
    </extension>
    <extension
@@ -47,7 +47,7 @@
       <page
             class="org.itrace.preferences.ITracePreferencePage"
             id="org.itrace.preferences.ITracePreferencePage"
-            name="iTrace">
+            name="iTrace Eclipse Plugin">
       </page>
    </extension>
 
