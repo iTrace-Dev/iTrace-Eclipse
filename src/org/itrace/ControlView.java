@@ -59,21 +59,21 @@ public class ControlView extends ViewPart implements IPartListener2, EventHandle
         final Button trackingButton = new Button(buttonComposite, SWT.PUSH);
         trackingButton.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true,
                 1, 1));
-        trackingButton.setText("Connect to server");
+        trackingButton.setText("Connect to Server");
         trackingButton.setSize(200, 50);
         trackingButton.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent e) {
             	ITrace.getDefault().setActionBars(getViewSite().getActionBars());
             	if(ITrace.getDefault().toggleTracking()){
-            		if(trackingButton.getText() == "Connect to server"){
+            		if(trackingButton.getText() == "Connect to Server"){
             			trackingButton.setText("Disconnect");
             			for (Control c : grayedControls) {
                             c.setEnabled(false);
                         }
             		}
                 	else{
-                		trackingButton.setText("Connect to server");
+                		trackingButton.setText("Connect to Server");
                 		for (Control c : grayedControls) {
                             c.setEnabled(true);
                         }
