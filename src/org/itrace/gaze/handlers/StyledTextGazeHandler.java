@@ -50,7 +50,7 @@ public class StyledTextGazeHandler implements IGazeHandler {
             	return null;
             }
 
-            col = offset - lineOffset;
+            col = offset - lineOffset + 1;
             lineIndex = projectionViewer.widgetLine2ModelLine(foldedLineIndex);
             
             // (0, 0) relative to the control in absolute screen
