@@ -29,6 +29,7 @@ public class XMLGazeExportSolver implements IFileExportSolver, EventHandler {
     private XMLOutputFactory outFactory = XMLOutputFactory.newInstance();
     private XMLStreamWriter responseWriter;
     private File outFile;
+    private FileOutputStream outFileStream;
     private String filename = "";
     private String sessionId = "";
     private Dimension screenRect;
@@ -44,7 +45,8 @@ public class XMLGazeExportSolver implements IFileExportSolver, EventHandler {
         screenRect = Toolkit.getDefaultToolkit().getScreenSize();
         try {
         	outFile = new File(getFilename());
-            responseWriter = outFactory.createXMLStreamWriter(new FileOutputStream(outFile), "UTF-8");
+        	outFileStream = new FileOutputStream(outFile);
+            responseWriter = outFactory.createXMLStreamWriter(outFileStream, "UTF-8");
         } catch (IOException e) {
             throw new RuntimeException("Log files could not be created: " + e.getMessage());
         } catch (XMLStreamException e) {
@@ -120,6 +122,7 @@ public class XMLGazeExportSolver implements IFileExportSolver, EventHandler {
     @Override
     public void dispose() {
         try {
+        	// cleanup and close response writer
             responseWriter.writeEndElement();
             responseWriter.writeCharacters(EOL);
             responseWriter.writeEndElement();
@@ -128,11 +131,16 @@ public class XMLGazeExportSolver implements IFileExportSolver, EventHandler {
             responseWriter.writeCharacters(EOL);
             responseWriter.flush();
             responseWriter.close();
+            // close underlying stream
+            outFileStream.close();
             System.out.println("Gaze responses saved.");
         } catch (XMLStreamException e) {
             throw new RuntimeException("Log file footer could not be written: "
                     + e.getMessage());
-        }
+        } catch (IOException e) {
+            throw new RuntimeException("Log file footer could not be written: "
+                    + e.getMessage());
+		}
         outFile = null;
     }
     
