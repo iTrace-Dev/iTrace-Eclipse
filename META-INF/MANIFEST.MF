@@ -1,9 +1,9 @@
 Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Itrace
-Bundle-SymbolicName: edu.ysu.itrace;singleton:=true
-Bundle-Version: 1.0.0.0
-Bundle-Activator: edu.ysu.itrace.ITrace
+Bundle-SymbolicName: org.itrace;singleton:=true
+Bundle-Version: 0.1.0
+Bundle-Activator: org.itrace.ITrace
 Require-Bundle: org.eclipse.ui,
  org.eclipse.core.runtime,
  org.eclipse.ui.ide;bundle-version="3.7.0",
@@ -15,7 +15,7 @@ Require-Bundle: org.eclipse.ui,
  ch.qos.logback.classic;bundle-version="1.0.7",
  org.eclipse.e4.core.services;bundle-version="2.0.0"
 Bundle-ActivationPolicy: lazy
-Bundle-RequiredExecutionEnvironment: JavaSE-1.6
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Bundle-ClassPath: .,
  lib/slf4j-api-1.7.5.jar,
  lib/functionaljava-4.1.jar,

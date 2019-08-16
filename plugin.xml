@@ -4,24 +4,24 @@
    <extension
          point="org.eclipse.ui.perspectives">
       <perspective
-            class="edu.ysu.itrace.PerspectiveFactory"
-            id="edu.ysu.itrace.perspectivefactory"
-            name="itrace">
+            class="org.itrace.PerspectiveFactory"
+            id="org.itrace.perspectivefactory"
+            name="iTrace Eclipse Plugin">
       </perspective>
    </extension>
    <extension
          point="org.eclipse.ui.perspectiveExtensions">
       <perspectiveExtension
-            targetID="edu.ysu.itrace.perspectivefactory">
+            targetID="org.itrace.perspectivefactory">
             <actionSet id="org.eclipse.wst.server.ui.internal.webbrowser.actionSet"/>
       </perspectiveExtension>
    </extension>
    <extension
          point="org.eclipse.ui.views">
       <view
-            class="edu.ysu.itrace.ControlView"
-            id="edu.ysu.itrace.controlview"
-            name="itrace controller"
+            class="org.itrace.ControlView"
+            id="org.itrace.controlview"
+            name="iTrace Eclipse Plugin"
             restorable="true">
       </view>
    </extension>
@@ -39,15 +39,15 @@
    <extension
          point="org.eclipse.core.runtime.preferences">
       <initializer
-            class="edu.ysu.itrace.preferences.PreferenceInitializer">
+            class="org.itrace.preferences.ITracePreferenceInitializer">
       </initializer>
    </extension>
    <extension
          point="org.eclipse.ui.preferencePages">
       <page
-            class="edu.ysu.itrace.preferences.PluginPreferences"
-            id="edu.ysu.itrace.preferences.PluginPreferences"
-            name="iTrace">
+            class="org.itrace.preferences.ITracePreferencePage"
+            id="org.itrace.preferences.ITracePreferencePage"
+            name="iTrace Eclipse Plugin">
       </page>
    </extension>
 

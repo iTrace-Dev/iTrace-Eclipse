@@ -1,7 +1,6 @@
-package edu.ysu.itrace.solvers;
+package org.itrace.solvers;
 
-import edu.ysu.itrace.gaze.IGazeResponse;
-
+import org.itrace.gaze.IGazeResponse;
 
 /**
  * Defines a minimal interface for passing data to a solver.
@@ -20,7 +19,7 @@ public interface ISolver {
     /**
      * Configure the export filename.
      */
-    public void config(String dirLocation);
+    public void config(String filename, String sessionId);
     
     /**
      * Launch dialog to display the export filename.

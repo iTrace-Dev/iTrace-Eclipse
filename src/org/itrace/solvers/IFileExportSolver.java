@@ -1,4 +1,4 @@
-package edu.ysu.itrace.solvers;
+package org.itrace.solvers;
 
 /**
  * Defines an interface for solvers that dump data to files.

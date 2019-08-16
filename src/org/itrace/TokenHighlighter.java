@@ -1,4 +1,4 @@
-package edu.ysu.itrace;
+package org.itrace;
 
 import org.eclipse.swt.custom.StyledText;
 import org.eclipse.swt.events.PaintEvent;
@@ -10,32 +10,23 @@ import org.eclipse.swt.widgets.Control;
 
 import org.eclipse.ui.IEditorPart;
 import org.eclipse.ui.PlatformUI;
+import org.itrace.gaze.IStyledTextGazeResponse;
 import org.osgi.service.event.Event;
 import org.osgi.service.event.EventHandler;
 
-import edu.ysu.itrace.gaze.IStyledTextGazeResponse;
-import edu.ysu.itrace.gaze.handlers.StyledTextGazeHandler;
-
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.LinkedBlockingQueue;
 
 import org.eclipse.e4.core.services.events.IEventBroker;
-import org.eclipse.jface.text.ITextOperationTarget;
-import org.eclipse.jface.text.source.projection.ProjectionViewer;
 
 public class TokenHighlighter implements PaintListener, EventHandler {
 	
 	private IEditorPart editorPart;
 	private StyledText styledText;
-	private ProjectionViewer projectionViewer;
 	private Rectangle boundingBox;
-	private LinkedBlockingQueue<Gaze> gazeQueue;
-	private StyledTextGazeHandler gazeHandler;
 	private Point[] points;
 	private int pointIndex;
 	private int numberOfPoints;
-	private int nulls;
 	private boolean show;
 	private IEventBroker eventBroker;
 	/*additional information to:
@@ -84,17 +75,6 @@ public class TokenHighlighter implements PaintListener, EventHandler {
 		if(boundingBox != null) return boundingBox.contains(x,y);
 		else return false;
 	}
-	
-	public int getOffsetAtPoint(Point point){
-		try{
-			int offset = styledText.getOffsetAtLocation(point);
-			return offset;
-		}
-		catch(Exception e){
-			return -1;
-		}
-	}
-		
 	
 	public void setShow(boolean show){
 		this.show = show;
@@ -149,20 +129,14 @@ public class TokenHighlighter implements PaintListener, EventHandler {
 	public TokenHighlighter(IEditorPart editorPart, boolean show){
 		this.editorPart = editorPart;
 		this.styledText = (StyledText)this.editorPart.getAdapter(Control.class);
-		ITextOperationTarget t = (ITextOperationTarget) editorPart.getAdapter(ITextOperationTarget.class);
-		if(t instanceof ProjectionViewer) projectionViewer = (ProjectionViewer) t;
 		this.styledText.addPaintListener(this);
-		this.gazeHandler = new StyledTextGazeHandler(styledText);
 		this.show = show;
 		this.numberOfPoints = 10;
 		this.points = new Point[numberOfPoints];
 		this.pointIndex = 0;
-		this.nulls = 0;
 		this.eventBroker = PlatformUI.getWorkbench().getService(IEventBroker.class);
 		this.eventBroker.subscribe("iTrace/newstresponse", this);
 	}
-
-
 
 	@Override
 	public void handleEvent(Event event) {
@@ -191,11 +165,7 @@ public class TokenHighlighter implements PaintListener, EventHandler {
         if(editorBounds.contains(screenX, screenY) && alternate){
         	int relativeX = screenX-editorBounds.x;
         	int relativeY = screenY-editorBounds.y;
-        	IStyledTextGazeResponse response_new = gazeHandler.handleGaze(screenX, screenY, relativeX, relativeY, response.getGaze());
-            	if(response_new != null && !boundingBoxContains(relativeX,relativeY)){
-            		update(response_new.getLine()-1,response_new.getCol(), relativeX, relativeY);
-            	}
-        }
-		
+        	update(response.getLine()-1, response.getCol(), relativeX, relativeY);
+        }		
 	}
 }

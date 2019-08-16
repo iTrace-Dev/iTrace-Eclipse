@@ -1,6 +1,7 @@
-package edu.ysu.itrace.gaze;
+package org.itrace.gaze.handlers;
 
-import edu.ysu.itrace.Gaze;
+import org.itrace.Gaze;
+import org.itrace.gaze.IGazeResponse;
 
 
 

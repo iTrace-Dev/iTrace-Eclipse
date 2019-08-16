@@ -1,4 +1,4 @@
-package edu.ysu.itrace.solvers;
+package org.itrace.solvers;
 
 import java.awt.Dimension;
 import java.awt.Toolkit;
@@ -16,14 +16,10 @@ import javax.xml.stream.XMLOutputFactory;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamWriter;
 
-import org.eclipse.core.resources.ResourcesPlugin;
-import org.eclipse.e4.core.services.events.IEventBroker;
-import org.eclipse.ui.PlatformUI;
+import org.itrace.gaze.IGazeResponse;
+import org.itrace.gaze.IStyledTextGazeResponse;
 import org.osgi.service.event.Event;
 import org.osgi.service.event.EventHandler;
-
-import edu.ysu.itrace.gaze.IGazeResponse;
-import edu.ysu.itrace.gaze.IStyledTextGazeResponse;
 
 /**
  * Solver that simply dumps gaze data to disk in XML format.
@@ -33,14 +29,14 @@ public class XMLGazeExportSolver implements IFileExportSolver, EventHandler {
     private XMLOutputFactory outFactory = XMLOutputFactory.newInstance();
     private XMLStreamWriter responseWriter;
     private File outFile;
+    private FileOutputStream outFileStream;
     private String filename = "";
+    private String sessionId = "";
     private Dimension screenRect;
-    private IEventBroker eventBroker;
     public boolean initialized = false;
 
     public XMLGazeExportSolver() {
     	UIManager.put("swing.boldMetal", new Boolean(false)); //make UI font plain
-    	eventBroker = PlatformUI.getWorkbench().getService(IEventBroker.class);
     }
     
     @Override
@@ -49,14 +45,12 @@ public class XMLGazeExportSolver implements IFileExportSolver, EventHandler {
         screenRect = Toolkit.getDefaultToolkit().getScreenSize();
         try {
         	outFile = new File(getFilename());
-            responseWriter =
-                    outFactory.createXMLStreamWriter(new FileOutputStream(outFile), "UTF-8");
+        	outFileStream = new FileOutputStream(outFile);
+            responseWriter = outFactory.createXMLStreamWriter(outFileStream, "UTF-8");
         } catch (IOException e) {
-            throw new RuntimeException("Log files could not be created: "
-                    + e.getMessage());
+            throw new RuntimeException("Log files could not be created: " + e.getMessage());
         } catch (XMLStreamException e) {
-            throw new RuntimeException("Log files could not be created: "
-                    + e.getMessage());
+            throw new RuntimeException("Log files could not be created: " + e.getMessage());
         }
         System.out.println("Putting files at " + outFile.getAbsolutePath());
 
@@ -66,29 +60,18 @@ public class XMLGazeExportSolver implements IFileExportSolver, EventHandler {
             responseWriter.writeCharacters(EOL);
             
             // Show that data is from a plugin
-            responseWriter.writeStartElement("plugin");
-            responseWriter.writeCharacters(EOL);
-            
-            // Record environment data
-            responseWriter.writeStartElement("environment");
+            responseWriter.writeStartElement("itrace_plugin");
+            responseWriter.writeAttribute("session_id", sessionId);
             responseWriter.writeCharacters(EOL);
             
             // Screen Dimensions
-            responseWriter.writeEmptyElement("screen-size");
-            responseWriter.writeAttribute("width",
+            responseWriter.writeEmptyElement("environment");
+            responseWriter.writeAttribute("screen_width",
                     String.valueOf(screenRect.width));
-            responseWriter.writeAttribute("height",
+            responseWriter.writeAttribute("screen_height",
                     String.valueOf(screenRect.height));
-            responseWriter.writeCharacters(EOL);
-            
-            // Plugin Type
-            responseWriter.writeEmptyElement("application");
-            responseWriter.writeAttribute("type", "eclipse");
-            responseWriter.writeCharacters(EOL);
-            
-            // End Environment
-            responseWriter.writeEndElement();
-            responseWriter.writeCharacters(EOL);
+            responseWriter.writeAttribute("plugin_type", "eclipse");
+            responseWriter.writeCharacters(EOL);    
             
             // Start Gaze Data Section
             responseWriter.writeStartElement("gazes");
@@ -103,42 +86,43 @@ public class XMLGazeExportSolver implements IFileExportSolver, EventHandler {
     @Override
     public void process(IGazeResponse response) {
         try {                
-                responseWriter.writeStartElement("response");
-                responseWriter.writeAttribute("object_name", response.getName());
-                responseWriter.writeAttribute("type", response.getGazeType());
-                responseWriter.writeAttribute("x", String.valueOf(response.getGaze().getX()));
-                responseWriter.writeAttribute("y", String.valueOf(response.getGaze().getY()));
-                responseWriter.writeAttribute("timestamp",
-                        String.valueOf(response.getGaze().getTimestamp()));
-                responseWriter.writeAttribute("event_time", String.valueOf(response.getGaze().getEventTime()));
-                
-                if (response instanceof IStyledTextGazeResponse) {
-                    IStyledTextGazeResponse styledResponse =
-                            (IStyledTextGazeResponse) response;
-                    responseWriter.writeAttribute("path", styledResponse.getPath());
-                    responseWriter.writeAttribute("line_height",
-                            String.valueOf(styledResponse.getLineHeight()));
-                    responseWriter.writeAttribute("font_height",
-                            String.valueOf(styledResponse.getFontHeight()));
-                    responseWriter.writeAttribute("line",
-                            String.valueOf(styledResponse.getLine()));
-                    responseWriter.writeAttribute("col",
-                            String.valueOf(styledResponse.getCol()));
-                    responseWriter.writeAttribute("line_base_x",
-                            String.valueOf(styledResponse.getLineBaseX()));
-                    responseWriter.writeAttribute("line_base_y",
-                            String.valueOf(styledResponse.getLineBaseY()));
-                } 
-                
-                responseWriter.writeEndElement();
-                responseWriter.writeCharacters(EOL);
-        
+			responseWriter.writeStartElement("response");
+			responseWriter.writeAttribute("event_id", String.valueOf(response.getGaze().getEventTime()));
+			responseWriter.writeAttribute("plugin_time", String.valueOf(System.currentTimeMillis()));
+			responseWriter.writeAttribute("x", String.valueOf(response.getGaze().getX()));
+			responseWriter.writeAttribute("y", String.valueOf(response.getGaze().getY()));
+			responseWriter.writeAttribute("gaze_target", response.getName());
+			responseWriter.writeAttribute("gaze_target_type", response.getGazeType());
+			
+			if (response instanceof IStyledTextGazeResponse) {
+			    IStyledTextGazeResponse styledResponse = (IStyledTextGazeResponse) response;
+			    responseWriter.writeAttribute("source_file_path", styledResponse.getPath());
+			    responseWriter.writeAttribute("source_file_line", String.valueOf(styledResponse.getLine()));
+			    responseWriter.writeAttribute("source_file_col", String.valueOf(styledResponse.getCol()));
+			    responseWriter.writeAttribute("editor_line_height", String.valueOf(styledResponse.getLineHeight()));
+			    responseWriter.writeAttribute("editor_font_height", String.valueOf(styledResponse.getFontHeight()));
+			    responseWriter.writeAttribute("editor_line_base_x", String.valueOf(styledResponse.getLineBaseX()));
+			    responseWriter.writeAttribute("editor_line_base_y", String.valueOf(styledResponse.getLineBaseY()));
+			}
+			else {
+			    responseWriter.writeAttribute("source_file_path", "");
+			    responseWriter.writeAttribute("source_file_line", "");
+			    responseWriter.writeAttribute("source_file_col", "");
+			    responseWriter.writeAttribute("editor_line_height", "");
+			    responseWriter.writeAttribute("editor_font_height", "");
+			    responseWriter.writeAttribute("editor_line_base_x", "");
+			    responseWriter.writeAttribute("editor_line_base_y", "");
+			}
+			
+			responseWriter.writeEndElement();
+			responseWriter.writeCharacters(EOL);        
         } catch (XMLStreamException e) { /* ignore write errors */ }
     }
 
     @Override
     public void dispose() {
         try {
+        	// cleanup and close response writer
             responseWriter.writeEndElement();
             responseWriter.writeCharacters(EOL);
             responseWriter.writeEndElement();
@@ -147,17 +131,23 @@ public class XMLGazeExportSolver implements IFileExportSolver, EventHandler {
             responseWriter.writeCharacters(EOL);
             responseWriter.flush();
             responseWriter.close();
+            // close underlying stream
+            outFileStream.close();
             System.out.println("Gaze responses saved.");
         } catch (XMLStreamException e) {
             throw new RuntimeException("Log file footer could not be written: "
                     + e.getMessage());
-        }
+        } catch (IOException e) {
+            throw new RuntimeException("Log file footer could not be written: "
+                    + e.getMessage());
+		}
         outFile = null;
     }
     
     @Override
-    public void config(String dirLocation) {
-    	filename = dirLocation;
+    public void config(String filename, String sessionId) {
+    	this.filename = filename;
+    	this.sessionId = sessionId;
     }
 
     @Override
@@ -191,10 +181,11 @@ public class XMLGazeExportSolver implements IFileExportSolver, EventHandler {
 
 	@Override
 	public void handleEvent(Event event) {
-		if(outFile == null) this.init();
+		if(outFile == null) {
+			this.init();
+		}
 		String[] propertyNames = event.getPropertyNames();
 		IGazeResponse response = (IGazeResponse)event.getProperty(propertyNames[0]);
-		this.process(response);
-		
+		this.process(response);		
 	}
 }
