@@ -57,10 +57,10 @@ public class ControlView extends ViewPart implements IPartListener2, EventHandle
         
         //Tracking start and stop button.
         final Button trackingButton = new Button(buttonComposite, SWT.PUSH);
-        trackingButton.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true,
-                1, 1));
+        GridData trackingButtonGridData = new GridData(SWT.FILL, SWT.FILL, true, true, 1, 1);
+        trackingButtonGridData.widthHint = 100;
+        trackingButton.setLayoutData(trackingButtonGridData);
         trackingButton.setText("Connect to Core");
-        trackingButton.setSize(200, 50);
         trackingButton.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent e) {
@@ -84,11 +84,9 @@ public class ControlView extends ViewPart implements IPartListener2, EventHandle
         });
         
         //Tuning Composite Start.
-        final Composite tuningComposite = new Composite(parent, SWT.NONE);
-        tuningComposite.setLayout(new GridLayout(2, false));
-
-        final Button highlight_tokens = new Button(tuningComposite, SWT.CHECK);
+        final Button highlight_tokens = new Button(buttonComposite, SWT.CHECK);
         highlight_tokens.setText("Highlight Tokens");
+        highlight_tokens.setLayoutData(new GridData(SWT.LEFT, SWT.CENTER, false, false, 1, 1));
         highlight_tokens.addSelectionListener(new SelectionAdapter(){
         	@Override
             public void widgetSelected(SelectionEvent e) {
@@ -96,12 +94,6 @@ public class ControlView extends ViewPart implements IPartListener2, EventHandle
         	}
         });
         //Tuning composite end.
-		
-		//Filter composite begin.
-		final Composite filterComposite = new Composite(parent, SWT.NONE);
-		filterComposite.setLayout(new GridLayout(2, false));
-		
-		//Filter composite end.
     }
 
     @Override
