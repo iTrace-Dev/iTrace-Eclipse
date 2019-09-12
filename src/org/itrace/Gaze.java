@@ -9,7 +9,6 @@ public class Gaze {
 
     private long eventTime;
     private Calendar calendar;
-    private long nanoTime;
     private long systemTime;
     private Timestamp timestamp;
     private String timestampString;
@@ -20,7 +19,6 @@ public class Gaze {
     	this.eventTime = eventTime;
     	
 	    this.calendar = Calendar.getInstance();
-	    this.nanoTime = System.nanoTime();
 	    this.systemTime = System.currentTimeMillis();
 
 		calendar.setTimeInMillis(systemTime);
