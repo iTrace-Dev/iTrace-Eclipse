@@ -24,8 +24,6 @@ public class TokenHighlighter implements PaintListener, EventHandler {
 	private IEditorPart editorPart;
 	private StyledText styledText;
 	private Rectangle boundingBox;
-	private Point[] points;
-	private int pointIndex;
 	private int numberOfPoints;
 	private boolean show;
 	private IEventBroker eventBroker;
@@ -33,16 +31,16 @@ public class TokenHighlighter implements PaintListener, EventHandler {
  	 * avoid performance issues by handling every other gaze
 	 * keep a rolling average of screen position to mitigate effects of small eye movements
 	 */
-	boolean alternate = false;
 	List<Integer> xPoints = new ArrayList<>();
     List<Integer> yPoints = new ArrayList<>();
     int totalX = 0;
     int totalY = 0;
-	
+    
+    int pointCount = 0;	
 	
 	@Override
 	public void paintControl(PaintEvent pe) {
-		if(boundingBox != null && show){
+		if(boundingBox != null && show && pointCount > 3){
 			pe.gc.setBackground(new Color(pe.gc.getDevice(),255,215,0));
 			pe.gc.setForeground(new Color(pe.gc.getDevice(),0,0,0));
 			pe.gc.drawRectangle(boundingBox);
@@ -54,15 +52,13 @@ public class TokenHighlighter implements PaintListener, EventHandler {
 			pe.gc.setAlpha(125);
 			pe.gc.fillRectangle(boundingBox);
 		}
-	}
-
-	
+	}	
 	
 	public void redraw(){
 		styledText.redraw();
 	}
 	
-	public void update(int lineIndex, int column, int x, int y){
+	public void update(int x, int y){
 		int foldedLineIndex = styledText.getLineIndex(y);
 		int lineOffset = styledText.getOffsetAtLine(foldedLineIndex);
 		String lineContent = styledText.getLine(foldedLineIndex);
@@ -78,16 +74,11 @@ public class TokenHighlighter implements PaintListener, EventHandler {
 	
 	public void setShow(boolean show){
 		this.show = show;
-		//if(show) this.start();
-	}
-	
+	}	
 	
 	private Rectangle getBoundingBox(int lineOffset, String lineContent, int x, int y){
 		Rectangle box = null;
-		points[pointIndex] = new Point(x,y);
-		pointIndex++;
-		if(pointIndex > numberOfPoints-1) pointIndex = pointIndex%numberOfPoints;
-		if(boundingBox != null && containsPoints(boundingBox)) return boundingBox;
+		if(boundingBox != null && boundingBox.contains(x, y)) return boundingBox;
 		int startOffset = 0;
 		int endOffset;
 		while(startOffset < lineContent.length()){
@@ -98,24 +89,13 @@ public class TokenHighlighter implements PaintListener, EventHandler {
 				endOffset++;
 			box = styledText.getTextBounds(lineOffset+startOffset, lineOffset+endOffset);
 			
-			if(containsPoints(box)) break;
+			if(box.contains(x, y)) break;
 			startOffset = endOffset+1;
 		}
-		if(box != null && !containsPoints(box)){
+		if(box != null && !box.contains(x, y)){
 			box = null;
 		}
 		return box;
-	}
-	
-	private boolean containsPoints(Rectangle box){
-		for(Point p: points){
-			if(p != null) { 
-				if(!box.contains(p)) {
-					return false;
-				}
-			}
-		}
-		return true;
 	}
 	
 	private boolean checkChar(char c){
@@ -132,8 +112,6 @@ public class TokenHighlighter implements PaintListener, EventHandler {
 		this.styledText.addPaintListener(this);
 		this.show = show;
 		this.numberOfPoints = 10;
-		this.points = new Point[numberOfPoints];
-		this.pointIndex = 0;
 		this.eventBroker = PlatformUI.getWorkbench().getService(IEventBroker.class);
 		this.eventBroker.subscribe("iTrace/newstresponse", this);
 	}
@@ -141,17 +119,30 @@ public class TokenHighlighter implements PaintListener, EventHandler {
 	@Override
 	public void handleEvent(Event event) {
 		String[] propertyNames = event.getPropertyNames();
-		IStyledTextGazeResponse response = (IStyledTextGazeResponse)event.getProperty(propertyNames[0]);
-		xPoints.add((int)(response.getGaze().getX()));
-		yPoints.add((int)(response.getGaze().getY()));
-		totalX += (int) (response.getGaze().getX());
-		totalY += (int) (response.getGaze().getY());
+		if(event.getProperty(propertyNames[0]) != null && event.getProperty(propertyNames[0]) instanceof IStyledTextGazeResponse) {
+			IStyledTextGazeResponse response = (IStyledTextGazeResponse)event.getProperty(propertyNames[0]);
+			xPoints.add((int)(response.getGaze().getX()));
+			yPoints.add((int)(response.getGaze().getY()));
+			totalX += (int) (response.getGaze().getX());
+			totalY += (int) (response.getGaze().getY());
+			
+			pointCount += 1;
+		} else {
+			xPoints.add(null);
+			yPoints.add(null);
+		}
 		
 		if(xPoints.size() > this.numberOfPoints) {
-			totalX -= xPoints.get(0);
-			totalY -= yPoints.get(0);
+			Integer x = xPoints.get(0);
+			totalX -= x == null ? 0 : x;
+			Integer y = yPoints.get(0);
+			totalY -= y == null ? 0 : y;
 			xPoints.remove(0);
 			yPoints.remove(0);
+			
+			if(x != null) {
+				pointCount -= 1;
+			}
 		}
 		
         if(styledText.isDisposed()) return;
@@ -159,13 +150,16 @@ public class TokenHighlighter implements PaintListener, EventHandler {
         Point screenPos = styledText.toDisplay(0, 0);
         editorBounds.x = screenPos.x;
         editorBounds.y = screenPos.y;
-        int screenX = totalX / xPoints.size();
-        int screenY = totalY / yPoints.size();
-        alternate = !alternate;
-        if(editorBounds.contains(screenX, screenY) && alternate){
+        int screenX = 0;
+        int screenY = 0;
+        if(pointCount > 0) {
+	        screenX = totalX / pointCount;
+	        screenY = totalY / pointCount;
+        }
+        if(editorBounds.contains(screenX, screenY)){
         	int relativeX = screenX-editorBounds.x;
         	int relativeY = screenY-editorBounds.y;
-        	update(response.getLine()-1, response.getCol(), relativeX, relativeY);
+        	update(relativeX, relativeY);
         }		
 	}
 }

@@ -19,7 +19,6 @@ import org.osgi.service.event.Event;
 import org.osgi.service.event.EventHandler;
 
 import org.itrace.gaze.IGazeResponse;
-import org.itrace.gaze.IStyledTextGazeResponse;
 import org.itrace.gaze.handlers.IGazeHandler;
 import org.itrace.gaze.handlers.StyledTextGazeHandler;
 import org.itrace.solvers.XMLGazeExportSolver;
@@ -293,13 +292,11 @@ public class ITrace extends AbstractUIPlugin implements EventHandler {
 								response = handleGaze(screenX, screenY, g);
 								if (response != null) {
 									xmlSolver.process(response);
+								}
 
-									if (response instanceof IStyledTextGazeResponse && response != null
-											&& showTokenHighlights) {
-										IStyledTextGazeResponse styledTextResponse = (IStyledTextGazeResponse) response;
-										// Change to function call
-										eventBroker.post("iTrace/newstresponse", styledTextResponse);
-									}
+								if (showTokenHighlights) {
+									// Change to function call
+									eventBroker.post("iTrace/newstresponse", response);
 								}
 							}
 						});
