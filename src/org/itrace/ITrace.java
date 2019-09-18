@@ -19,7 +19,6 @@ import org.osgi.service.event.Event;
 import org.osgi.service.event.EventHandler;
 
 import org.itrace.gaze.IGazeResponse;
-import org.itrace.gaze.IStyledTextGazeResponse;
 import org.itrace.gaze.handlers.IGazeHandler;
 import org.itrace.gaze.handlers.StyledTextGazeHandler;
 import org.itrace.solvers.XMLGazeExportSolver;
@@ -175,11 +174,10 @@ public class ITrace extends AbstractUIPlugin implements EventHandler {
 		}
 		connectionManager.endSocketConnection();
 		if (isRecording) {
-			xmlSolver.dispose();
+			endSession();
 		}
-		statusLineManager.setMessage("");
+		
 		isConnected = false;
-		isRecording = false;
 		return true;
 	}
 
@@ -188,9 +186,15 @@ public class ITrace extends AbstractUIPlugin implements EventHandler {
 			eventBroker.post("iTrace/error", "No Session has started");
 			return false;
 		}
+		
+		isRecording = false;
+		
+		if(showTokenHighlights) {
+			clearTokenHighlights();	
+		}
 
 		xmlSolver.dispose();
-		isRecording = false;
+		statusLineManager.setMessage("");
 		return true;
 	}
 
@@ -202,8 +206,16 @@ public class ITrace extends AbstractUIPlugin implements EventHandler {
 	}
 
 	public void setActiveEditor(IEditorPart editorPart) {
+		if(activeEditor == editorPart) {
+			return;
+		}
+		
 		activeEditor = editorPart;
 
+		if(showTokenHighlights) {
+			clearTokenHighlights();			
+		}
+		
 		if (activeEditor != null) {
 			if (!tokenHighlighters.containsKey(editorPart)) {
 				tokenHighlighters.put(editorPart, new TokenHighlighter(editorPart, showTokenHighlights));
@@ -231,6 +243,12 @@ public class ITrace extends AbstractUIPlugin implements EventHandler {
 		}
 		for (TokenHighlighter tokenHighlighter : tokenHighlighters.values()) {
 			tokenHighlighter.setShow(showTokenHighlights);
+		}
+	}
+	
+	public void clearTokenHighlights() {
+		if (activeEditor != null && tokenHighlighters.containsKey(activeEditor)) {
+			tokenHighlighters.get(activeEditor).clearHighlights();			
 		}
 	}
 
@@ -262,7 +280,6 @@ public class ITrace extends AbstractUIPlugin implements EventHandler {
 
 	public void processData() {
 		while (isRecording) {
-			Thread.yield();
 			if (connectionManager.isDataReady()) {
 				Gaze g = connectionManager.popCurrentGaze();
 
@@ -293,12 +310,11 @@ public class ITrace extends AbstractUIPlugin implements EventHandler {
 								response = handleGaze(screenX, screenY, g);
 								if (response != null) {
 									xmlSolver.process(response);
+								}
 
-									if (response instanceof IStyledTextGazeResponse && response != null
-											&& showTokenHighlights) {
-										IStyledTextGazeResponse styledTextResponse = (IStyledTextGazeResponse) response;
-										// Change to function call
-										eventBroker.post("iTrace/newstresponse", styledTextResponse);
+								if (showTokenHighlights) {
+									if (activeEditor != null && tokenHighlighters.containsKey(activeEditor)) {
+										tokenHighlighters.get(activeEditor).handleGaze(response);
 									}
 								}
 							}
@@ -306,6 +322,7 @@ public class ITrace extends AbstractUIPlugin implements EventHandler {
 					}
 				}
 			}
+			Thread.yield();
 		}
 	}
 
