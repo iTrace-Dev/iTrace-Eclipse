@@ -17,6 +17,8 @@ import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.IEditorPart;
 import org.eclipse.ui.IEditorReference;
 import org.eclipse.ui.IPartListener2;
+import org.eclipse.ui.IViewSite;
+import org.eclipse.ui.IWorkbenchPart;
 import org.eclipse.ui.IWorkbenchPartReference;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.part.ViewPart;
@@ -111,7 +113,10 @@ public class ControlView extends ViewPart implements IPartListener2, EventHandle
     	if(partRef.getPart(false) instanceof IEditorPart) {
     		ITrace.getDefault().setActiveEditor((IEditorPart)partRef.getPart(false));
     		IEditorPart ep = (IEditorPart)partRef.getPart(true);
-    		ITrace.getDefault().setLineManager(ep.getEditorSite().getActionBars().getStatusLineManager());
+        	ITrace.getDefault().setLineManager(ep.getEditorSite().getActionBars().getStatusLineManager());
+    	} else {
+			IWorkbenchPart ep = partRef.getPart(true);
+	    	ITrace.getDefault().setLineManager(((IViewSite) ep.getSite()).getActionBars().getStatusLineManager());
     	}
     }
 
@@ -120,7 +125,10 @@ public class ControlView extends ViewPart implements IPartListener2, EventHandle
     	if(partRef.getPart(false) instanceof IEditorPart) {
     		ITrace.getDefault().setActiveEditor((IEditorPart)partRef.getPart(false));
     		IEditorPart ep = (IEditorPart)partRef.getPart(true);
-    		ITrace.getDefault().setLineManager(ep.getEditorSite().getActionBars().getStatusLineManager());
+        	ITrace.getDefault().setLineManager(ep.getEditorSite().getActionBars().getStatusLineManager());
+    	} else {
+			IWorkbenchPart ep = partRef.getPart(true);
+	    	ITrace.getDefault().setLineManager(((IViewSite) ep.getSite()).getActionBars().getStatusLineManager());
     	}
     }
 
