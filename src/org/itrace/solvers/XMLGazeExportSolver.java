@@ -16,6 +16,7 @@ import javax.xml.stream.XMLOutputFactory;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamWriter;
 
+import org.itrace.Gaze;
 import org.itrace.gaze.IGazeResponse;
 import org.itrace.gaze.IStyledTextGazeResponse;
 import org.osgi.service.event.Event;
@@ -84,27 +85,17 @@ public class XMLGazeExportSolver implements IFileExportSolver, EventHandler {
     }
 
     @Override
-    public void process(IGazeResponse response) {
-        try {                
-			responseWriter.writeStartElement("response");
-			responseWriter.writeAttribute("event_id", String.valueOf(response.getGaze().getEventTime()));
-			responseWriter.writeAttribute("plugin_time", String.valueOf(System.currentTimeMillis()));
-			responseWriter.writeAttribute("x", String.valueOf(response.getGaze().getX()));
-			responseWriter.writeAttribute("y", String.valueOf(response.getGaze().getY()));
-			responseWriter.writeAttribute("gaze_target", response.getName());
-			responseWriter.writeAttribute("gaze_target_type", response.getGazeType());
-			
-			if (response instanceof IStyledTextGazeResponse) {
-			    IStyledTextGazeResponse styledResponse = (IStyledTextGazeResponse) response;
-			    responseWriter.writeAttribute("source_file_path", styledResponse.getPath());
-			    responseWriter.writeAttribute("source_file_line", String.valueOf(styledResponse.getLine()));
-			    responseWriter.writeAttribute("source_file_col", String.valueOf(styledResponse.getCol()));
-			    responseWriter.writeAttribute("editor_line_height", String.valueOf(styledResponse.getLineHeight()));
-			    responseWriter.writeAttribute("editor_font_height", String.valueOf(styledResponse.getFontHeight()));
-			    responseWriter.writeAttribute("editor_line_base_x", String.valueOf(styledResponse.getLineBaseX()));
-			    responseWriter.writeAttribute("editor_line_base_y", String.valueOf(styledResponse.getLineBaseY()));
-			}
-			else {
+    public void process(IGazeResponse response, Gaze gaze) {
+        try {
+        	if(response == null) {
+    			responseWriter.writeStartElement("response");
+    			responseWriter.writeAttribute("event_id",String.valueOf(gaze.getEventTime()));
+    			responseWriter.writeAttribute("plugin_time", String.valueOf(System.currentTimeMillis()));
+    			responseWriter.writeAttribute("x", String.valueOf(gaze.getX()));
+    			responseWriter.writeAttribute("y", String.valueOf(gaze.getY()));
+    			responseWriter.writeAttribute("gaze_target", "");
+    			responseWriter.writeAttribute("gaze_target_type", "");
+    			
 			    responseWriter.writeAttribute("source_file_path", "");
 			    responseWriter.writeAttribute("source_file_line", "");
 			    responseWriter.writeAttribute("source_file_col", "");
@@ -112,8 +103,37 @@ public class XMLGazeExportSolver implements IFileExportSolver, EventHandler {
 			    responseWriter.writeAttribute("editor_font_height", "");
 			    responseWriter.writeAttribute("editor_line_base_x", "");
 			    responseWriter.writeAttribute("editor_line_base_y", "");
-			}
-			
+        		
+        	}
+        	else {
+				responseWriter.writeStartElement("response");
+				responseWriter.writeAttribute("event_id", String.valueOf(response.getGaze().getEventTime()));
+				responseWriter.writeAttribute("plugin_time", String.valueOf(System.currentTimeMillis()));
+				responseWriter.writeAttribute("x", String.valueOf(response.getGaze().getX()));
+				responseWriter.writeAttribute("y", String.valueOf(response.getGaze().getY()));
+				responseWriter.writeAttribute("gaze_target", response.getName());
+				responseWriter.writeAttribute("gaze_target_type", response.getGazeType());
+				
+				if (response instanceof IStyledTextGazeResponse) {
+				    IStyledTextGazeResponse styledResponse = (IStyledTextGazeResponse) response;
+				    responseWriter.writeAttribute("source_file_path", styledResponse.getPath());
+				    responseWriter.writeAttribute("source_file_line", String.valueOf(styledResponse.getLine()));
+				    responseWriter.writeAttribute("source_file_col", String.valueOf(styledResponse.getCol()));
+				    responseWriter.writeAttribute("editor_line_height", String.valueOf(styledResponse.getLineHeight()));
+				    responseWriter.writeAttribute("editor_font_height", String.valueOf(styledResponse.getFontHeight()));
+				    responseWriter.writeAttribute("editor_line_base_x", String.valueOf(styledResponse.getLineBaseX()));
+				    responseWriter.writeAttribute("editor_line_base_y", String.valueOf(styledResponse.getLineBaseY()));
+				}
+				else {
+				    responseWriter.writeAttribute("source_file_path", "");
+				    responseWriter.writeAttribute("source_file_line", "");
+				    responseWriter.writeAttribute("source_file_col", "");
+				    responseWriter.writeAttribute("editor_line_height", "");
+				    responseWriter.writeAttribute("editor_font_height", "");
+				    responseWriter.writeAttribute("editor_line_base_x", "");
+				    responseWriter.writeAttribute("editor_line_base_y", "");
+				}
+        	}
 			responseWriter.writeEndElement();
 			responseWriter.writeCharacters(EOL);        
         } catch (XMLStreamException e) { /* ignore write errors */ }
@@ -187,5 +207,11 @@ public class XMLGazeExportSolver implements IFileExportSolver, EventHandler {
 		String[] propertyNames = event.getPropertyNames();
 		IGazeResponse response = (IGazeResponse)event.getProperty(propertyNames[0]);
 		this.process(response);		
+	}
+
+	@Override
+	public void process(IGazeResponse response) {
+		// TODO Auto-generated method stub
+		
 	}
 }

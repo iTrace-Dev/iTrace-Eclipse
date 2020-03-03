@@ -18,6 +18,12 @@ import org.osgi.framework.BundleContext;
 import org.osgi.service.event.Event;
 import org.osgi.service.event.EventHandler;
 
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+
 import org.itrace.gaze.IGazeResponse;
 import org.itrace.gaze.handlers.IGazeHandler;
 import org.itrace.gaze.handlers.StyledTextGazeHandler;
@@ -50,6 +56,8 @@ public class ITrace extends AbstractUIPlugin implements EventHandler {
 	private long registerTime = 2000;
 	private IEventBroker eventBroker;
 	private Shell rootShell;
+	
+	private List<Long> Timings = new ArrayList<Long>(10000);
 
 	/**
 	 * The constructor
@@ -194,6 +202,22 @@ public class ITrace extends AbstractUIPlugin implements EventHandler {
 		}
 
 		xmlSolver.dispose();
+		
+		try {
+			FileWriter outFile = new FileWriter(new File(xmlSolver.getFilename()).getParent() + "\\Timings.txt");
+			StringBuilder sb = new StringBuilder();
+			for(Long time : Timings) {
+				sb.append(time.toString() + "\n");
+			}
+			outFile.write(sb.toString());
+			outFile.flush();
+			outFile.close();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+		
 		statusLineManager.setMessage("");
 		return true;
 	}
@@ -281,6 +305,8 @@ public class ITrace extends AbstractUIPlugin implements EventHandler {
 	public void processData() {
 		while (isRecording) {
 			if (connectionManager.isDataReady()) {
+				long startTime = System.nanoTime();
+				
 				Gaze g = connectionManager.popCurrentGaze();
 
 				// Have to run code that interfaces with UI in SWT thread
@@ -308,9 +334,7 @@ public class ITrace extends AbstractUIPlugin implements EventHandler {
 							public void run() {
 								IGazeResponse response;
 								response = handleGaze(screenX, screenY, g);
-								if (response != null) {
-									xmlSolver.process(response);
-								}
+								xmlSolver.process(response, g);
 
 								if (showTokenHighlights) {
 									if (activeEditor != null && tokenHighlighters.containsKey(activeEditor)) {
@@ -321,7 +345,12 @@ public class ITrace extends AbstractUIPlugin implements EventHandler {
 						});
 					}
 				}
+				
+				long stopTime = System.nanoTime();
+				
+				Timings.add((stopTime - startTime)/1000000);
 			}
+			
 			Thread.yield();
 		}
 	}
