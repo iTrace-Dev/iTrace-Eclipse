@@ -10,13 +10,14 @@ import org.itrace.gaze.IGazeResponse;
  * specialized way.
  */
 public interface IGazeHandler {
-
+	
+	public boolean containsGaze(int absoluteX, int absoluteY);
+	
     /**
      * Handles the specified gaze at the specified x and y coordinates relative
      * to the target object. Return value may be null if the gaze is not
      * meaningful to the target.
      */
-    public IGazeResponse handleGaze(int absoluteX, int absoluteY,
-            int relativeX, int relativeY, Gaze gaze);
+    public IGazeResponse handleGaze(int absoluteX, int absoluteY, Gaze gaze);
     
 }

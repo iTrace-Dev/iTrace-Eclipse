@@ -1,12 +1,11 @@
 package org.itrace;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 
 import org.eclipse.e4.core.services.events.IEventBroker;
 import org.eclipse.jface.action.IStatusLineManager;
 import org.eclipse.swt.custom.StyledText;
-import org.eclipse.swt.graphics.Point;
-import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Shell;
@@ -18,9 +17,12 @@ import org.osgi.framework.BundleContext;
 import org.osgi.service.event.Event;
 import org.osgi.service.event.EventHandler;
 
+import java.util.List;
+
 import org.itrace.gaze.IGazeResponse;
 import org.itrace.gaze.handlers.IGazeHandler;
-import org.itrace.gaze.handlers.StyledTextGazeHandler;
+import org.itrace.gaze.handlers.ShellGazeHandler;
+import org.itrace.gaze.handlers.WorkbenchGazeHandler;
 import org.itrace.solvers.XMLGazeExportSolver;
 
 /**
@@ -31,13 +33,15 @@ public class ITrace extends AbstractUIPlugin implements EventHandler {
 	// The plug-in ID
 	public static final String PLUGIN_ID = "org.itrace"; //$NON-NLS-1$
 	public long sessionStartTime;
-	public Rectangle monitorBounds;
 
 	// The shared instance
 	private static ITrace plugin;
 	private IEditorPart activeEditor;
+	
 	private HashMap<IEditorPart, TokenHighlighter> tokenHighlighters = new HashMap<IEditorPart, TokenHighlighter>();
-	private HashMap<IEditorPart, IGazeHandler> editorHandlers = new HashMap<IEditorPart, IGazeHandler>();
+	private HashMap<Shell, IGazeHandler> shellHandlers = new HashMap<Shell, IGazeHandler>();
+	private List<Shell> Shells = new ArrayList<>();
+	private WorkbenchGazeHandler workbenchGazeHandler;
 	private boolean showTokenHighlights = false;
 
 	private volatile boolean isConnected;
@@ -63,9 +67,10 @@ public class ITrace extends AbstractUIPlugin implements EventHandler {
 			StyledText styledText = (StyledText) editorPart.getAdapter(Control.class);
 			if (styledText != null) {
 				tokenHighlighters.put(editorPart, new TokenHighlighter(editorPart, showTokenHighlights));
-				editorHandlers.put(editorPart, new StyledTextGazeHandler(styledText, editorPart));
 			}
 		}
+		
+				
 		connectionManager = new ConnectionManager();
 		// iTrace invokes the events to the Eventbroker and these events are subscribed
 		// in an order.
@@ -220,18 +225,35 @@ public class ITrace extends AbstractUIPlugin implements EventHandler {
 			if (!tokenHighlighters.containsKey(editorPart)) {
 				tokenHighlighters.put(editorPart, new TokenHighlighter(editorPart, showTokenHighlights));
 			}
-			if (!editorHandlers.containsKey(editorPart)) {
-				StyledText styledText = (StyledText) editorPart.getAdapter(Control.class);
-				if (styledText != null) {
-					editorHandlers.put(editorPart, new StyledTextGazeHandler(styledText, editorPart));
-				}
-			}
+
+        	setLineManager(editorPart.getEditorSite().getActionBars().getStatusLineManager());
 		}
 	}
 
 	public void removeEditor(IEditorPart editorPart) {
-		tokenHighlighters.remove(editorPart);
-		editorHandlers.remove(editorPart);
+		tokenHighlighters.remove(editorPart);		
+
+    	IEditorPart activeEditor = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage().getActiveEditor();
+    	setActiveEditor(activeEditor);
+	}
+	
+	public void addShell(Shell shell) {
+		ShellGazeHandler handler;
+		if(shell == rootShell) {
+			this.workbenchGazeHandler = new WorkbenchGazeHandler(PlatformUI.getWorkbench());
+			return;
+		}
+		else {
+			handler = new ShellGazeHandler(shell);			
+		}
+		
+		shellHandlers.put(shell, handler); 
+		Shells.add(shell);
+	}
+	
+	public void removeShell(Shell shell) {
+		Shells.remove(shell);
+		shellHandlers.remove(shell);
 	}
 
 	public void activateHighlights() {
@@ -257,24 +279,19 @@ public class ITrace extends AbstractUIPlugin implements EventHandler {
 	 * handler on the localized point. Returns the gaze response or null if the gaze
 	 * is not handled.
 	 */
-	private IGazeResponse handleGaze(int screenX, int screenY, Gaze gaze) {
-		Rectangle monitorBounds = rootShell.getMonitor().getBounds();
-
-		// Look at all editors and find an active one that contains the point
-		// Returns the result of the editor's handleGaze method
-		for (IEditorPart editor : editorHandlers.keySet()) {
-			Control editorControl = editor.getAdapter(Control.class);
-			Rectangle editorScreenBounds = editorControl.getBounds();
-			Point screenPos = editorControl.toDisplay(0, 0);
-			editorScreenBounds.x = screenPos.x - monitorBounds.x;
-			editorScreenBounds.y = screenPos.y - monitorBounds.y;
-
-			if (editorControl.isVisible() && editorScreenBounds.contains(screenX, screenY)) {
-				IGazeHandler handler = editorHandlers.get(editor);
-				return handler.handleGaze(screenX, screenY, screenX - editorScreenBounds.x,
-						screenY - editorScreenBounds.y, gaze);
+	private IGazeResponse handleGaze(int screenX, int screenY, Gaze gaze) {		
+		for (Shell shell : Shells) {
+			IGazeHandler handler = shellHandlers.get(shell);
+			
+			if(handler.containsGaze(screenX, screenY)) {
+				return handler.handleGaze(screenX, screenY, gaze);
 			}
 		}
+		
+		if(workbenchGazeHandler.containsGaze(screenX, screenY)) {
+			return workbenchGazeHandler.handleGaze(screenX, screenY, gaze);
+		}
+		
 		return null;
 	}
 
