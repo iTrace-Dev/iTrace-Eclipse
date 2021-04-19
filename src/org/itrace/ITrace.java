@@ -258,16 +258,14 @@ public class ITrace extends AbstractUIPlugin implements EventHandler {
 	 * is not handled.
 	 */
 	private IGazeResponse handleGaze(int screenX, int screenY, Gaze gaze) {
-		Rectangle monitorBounds = rootShell.getMonitor().getBounds();
-
 		// Look at all editors and find an active one that contains the point
 		// Returns the result of the editor's handleGaze method
 		for (IEditorPart editor : editorHandlers.keySet()) {
 			Control editorControl = editor.getAdapter(Control.class);
 			Rectangle editorScreenBounds = editorControl.getBounds();
 			Point screenPos = editorControl.toDisplay(0, 0);
-			editorScreenBounds.x = screenPos.x - monitorBounds.x;
-			editorScreenBounds.y = screenPos.y - monitorBounds.y;
+			editorScreenBounds.x = screenPos.x;
+			editorScreenBounds.y = screenPos.y;
 
 			if (editorControl.isVisible() && editorScreenBounds.contains(screenX, screenY)) {
 				IGazeHandler handler = editorHandlers.get(editor);
