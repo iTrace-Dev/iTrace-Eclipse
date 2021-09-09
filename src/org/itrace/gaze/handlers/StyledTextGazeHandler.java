@@ -7,6 +7,7 @@ import org.eclipse.jface.text.source.projection.ProjectionViewer;
 //import org.eclipse.jface.text.source.projection.ProjectionViewer;
 import org.eclipse.swt.custom.StyledText;
 import org.eclipse.swt.graphics.Point;
+import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.ui.IEditorPart;
 import org.eclipse.ui.IFileEditorInput;
 import org.itrace.Gaze;
@@ -28,9 +29,24 @@ public class StyledTextGazeHandler implements IGazeHandler {
         this.editor = editor;
         projectionViewer = (ProjectionViewer) editor.getAdapter(ITextOperationTarget.class);
     }
+    
+    @Override
+    public boolean containsGaze(int absoluteX, int absoluteY) {
+    	Rectangle viewScreenBounds = targetStyledText.getBounds();
+		Point screenPos = targetStyledText.toDisplay(0, 0);
+		viewScreenBounds.x = screenPos.x;
+		viewScreenBounds.y = screenPos.y;
+	
+		if (targetStyledText.isVisible() && viewScreenBounds.contains(absoluteX, absoluteY)) {
+			return true;
+	    }
+	    else {
+	    	return false;
+	    }	    	
+    }
 
     @Override
-    public IStyledTextGazeResponse handleGaze(int absoluteX, int absoluteY, int relativeX, int relativeY, final Gaze gaze) {
+    public IStyledTextGazeResponse handleGaze(int absoluteX, int absoluteY, final Gaze gaze) {
         final int lineIndex;
         final int col;
         final Point absoluteLineAnchorPosition;
@@ -40,6 +56,9 @@ public class StyledTextGazeHandler implements IGazeHandler {
         final String path;
 
         try {
+        	int relativeX = absoluteX - targetStyledText.toDisplay(0, 0).x;
+        	int relativeY = absoluteY - targetStyledText.toDisplay(0, 0).y;
+        	
             // Get the actual offset of the current line from the top
             // Allows code folding to be taken into account
             int foldedLineIndex = targetStyledText.getLineIndex(relativeY);

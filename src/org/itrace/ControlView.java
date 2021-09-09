@@ -15,10 +15,9 @@ import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.MessageBox;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.IEditorPart;
-import org.eclipse.ui.IEditorReference;
 import org.eclipse.ui.IPartListener2;
-import org.eclipse.ui.IViewSite;
-import org.eclipse.ui.IWorkbenchPart;
+import org.eclipse.ui.IViewPart;
+import org.eclipse.ui.IViewReference;
 import org.eclipse.ui.IWorkbenchPartReference;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.part.ViewPart;
@@ -112,11 +111,8 @@ public class ControlView extends ViewPart implements IPartListener2, EventHandle
     public void partActivated(IWorkbenchPartReference partRef) {
     	if(partRef.getPart(false) instanceof IEditorPart) {
     		ITrace.getDefault().setActiveEditor((IEditorPart)partRef.getPart(false));
-    		IEditorPart ep = (IEditorPart)partRef.getPart(true);
-        	ITrace.getDefault().setLineManager(ep.getEditorSite().getActionBars().getStatusLineManager());
-    	} else {
-			IWorkbenchPart ep = partRef.getPart(true);
-	    	ITrace.getDefault().setLineManager(((IViewSite) ep.getSite()).getActionBars().getStatusLineManager());
+    	} else if(partRef instanceof IViewReference) {
+    		ITrace.getDefault().setActiveViewPart((IViewPart)partRef.getPart(false));
     	}
     }
 
@@ -124,23 +120,17 @@ public class ControlView extends ViewPart implements IPartListener2, EventHandle
     public void partBroughtToTop(IWorkbenchPartReference partRef) {
     	if(partRef.getPart(false) instanceof IEditorPart) {
     		ITrace.getDefault().setActiveEditor((IEditorPart)partRef.getPart(false));
-    		IEditorPart ep = (IEditorPart)partRef.getPart(true);
-        	ITrace.getDefault().setLineManager(ep.getEditorSite().getActionBars().getStatusLineManager());
-    	} else {
-			IWorkbenchPart ep = partRef.getPart(true);
-	    	ITrace.getDefault().setLineManager(((IViewSite) ep.getSite()).getActionBars().getStatusLineManager());
+    	} else if(partRef instanceof IViewReference) {
+    		ITrace.getDefault().setActiveViewPart((IViewPart)partRef.getPart(false));
     	}
     }
 
     @Override
     public void partClosed(IWorkbenchPartReference partRef) {
-    	if(partRef instanceof IEditorReference){
-    		ITrace.getDefault().setActionBars(getViewSite().getActionBars());
-        	IEditorPart editorPart = (IEditorPart)partRef.getPart(true);
-        	ITrace.getDefault().removeEditor(editorPart);
-        	
-        	IEditorPart activeEditor = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage().getActiveEditor();
-        	ITrace.getDefault().setActiveEditor(activeEditor);
+    	if(partRef.getPart(false) instanceof IEditorPart) {
+    		ITrace.getDefault().removeEditor((IEditorPart)partRef.getPart(false));
+    	} else if(partRef instanceof IViewReference) {
+    		ITrace.getDefault().removeViewPart((IViewPart)partRef.getPart(false));
     	}
     }
 

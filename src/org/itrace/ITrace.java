@@ -5,13 +5,13 @@ import java.util.HashMap;
 import org.eclipse.e4.core.services.events.IEventBroker;
 import org.eclipse.jface.action.IStatusLineManager;
 import org.eclipse.swt.custom.StyledText;
-import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.IActionBars;
 import org.eclipse.ui.IEditorPart;
+import org.eclipse.ui.IViewPart;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
 import org.osgi.framework.BundleContext;
@@ -19,8 +19,7 @@ import org.osgi.service.event.Event;
 import org.osgi.service.event.EventHandler;
 
 import org.itrace.gaze.IGazeResponse;
-import org.itrace.gaze.handlers.IGazeHandler;
-import org.itrace.gaze.handlers.StyledTextGazeHandler;
+import org.itrace.gaze.handlers.WorkbenchGazeHandler;
 import org.itrace.solvers.XMLGazeExportSolver;
 
 /**
@@ -37,7 +36,7 @@ public class ITrace extends AbstractUIPlugin implements EventHandler {
 	private static ITrace plugin;
 	private IEditorPart activeEditor;
 	private HashMap<IEditorPart, TokenHighlighter> tokenHighlighters = new HashMap<IEditorPart, TokenHighlighter>();
-	private HashMap<IEditorPart, IGazeHandler> editorHandlers = new HashMap<IEditorPart, IGazeHandler>();
+	private WorkbenchGazeHandler workbenchGazeHandler;
 	private boolean showTokenHighlights = false;
 
 	private volatile boolean isConnected;
@@ -63,9 +62,9 @@ public class ITrace extends AbstractUIPlugin implements EventHandler {
 			StyledText styledText = (StyledText) editorPart.getAdapter(Control.class);
 			if (styledText != null) {
 				tokenHighlighters.put(editorPart, new TokenHighlighter(editorPart, showTokenHighlights));
-				editorHandlers.put(editorPart, new StyledTextGazeHandler(styledText, editorPart));
 			}
 		}
+		
 		connectionManager = new ConnectionManager();
 		// iTrace invokes the events to the Eventbroker and these events are subscribed
 		// in an order.
@@ -118,6 +117,9 @@ public class ITrace extends AbstractUIPlugin implements EventHandler {
 
 	public void setRootShell(Shell shell) {
 		rootShell = shell;
+		if(workbenchGazeHandler == null) {
+			workbenchGazeHandler = new WorkbenchGazeHandler(PlatformUI.getWorkbench());			
+		}
 	}
 
 	public void setActionBars(IActionBars bars) {
@@ -220,19 +222,26 @@ public class ITrace extends AbstractUIPlugin implements EventHandler {
 			if (!tokenHighlighters.containsKey(editorPart)) {
 				tokenHighlighters.put(editorPart, new TokenHighlighter(editorPart, showTokenHighlights));
 			}
-			if (!editorHandlers.containsKey(editorPart)) {
-				StyledText styledText = (StyledText) editorPart.getAdapter(Control.class);
-				if (styledText != null) {
-					editorHandlers.put(editorPart, new StyledTextGazeHandler(styledText, editorPart));
-				}
-			}
+			setLineManager(editorPart.getEditorSite().getActionBars().getStatusLineManager());
+			workbenchGazeHandler.addEditor(editorPart);
 		}
+	}
+	
+	public void setActiveViewPart(IViewPart viewPart) {
+		setLineManager(viewPart.getViewSite().getActionBars().getStatusLineManager());
+		workbenchGazeHandler.addViewPart(viewPart);
 	}
 
 	public void removeEditor(IEditorPart editorPart) {
 		tokenHighlighters.remove(editorPart);
-		editorHandlers.remove(editorPart);
+		workbenchGazeHandler.removeEditor(editorPart);
 	}
+	
+	public void removeViewPart(IViewPart viewPart) {
+		workbenchGazeHandler.removeViewPart(viewPart);
+		
+	}
+
 
 	public void activateHighlights() {
 		showTokenHighlights = !showTokenHighlights;
@@ -258,21 +267,11 @@ public class ITrace extends AbstractUIPlugin implements EventHandler {
 	 * is not handled.
 	 */
 	private IGazeResponse handleGaze(int screenX, int screenY, Gaze gaze) {
+		if(workbenchGazeHandler.containsGaze(screenX, screenY)) {
+			return workbenchGazeHandler.handleGaze(screenX, screenY, gaze);
+		}
 		// Look at all editors and find an active one that contains the point
 		// Returns the result of the editor's handleGaze method
-		for (IEditorPart editor : editorHandlers.keySet()) {
-			Control editorControl = editor.getAdapter(Control.class);
-			Rectangle editorScreenBounds = editorControl.getBounds();
-			Point screenPos = editorControl.toDisplay(0, 0);
-			editorScreenBounds.x = screenPos.x;
-			editorScreenBounds.y = screenPos.y;
-
-			if (editorControl.isVisible() && editorScreenBounds.contains(screenX, screenY)) {
-				IGazeHandler handler = editorHandlers.get(editor);
-				return handler.handleGaze(screenX, screenY, screenX - editorScreenBounds.x,
-						screenY - editorScreenBounds.y, gaze);
-			}
-		}
 		return null;
 	}
 
