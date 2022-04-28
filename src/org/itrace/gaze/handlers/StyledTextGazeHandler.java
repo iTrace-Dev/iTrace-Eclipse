@@ -50,7 +50,7 @@ public class StyledTextGazeHandler implements IGazeHandler {
             	return null;
             }
             int lineOffset;
-            // Only use ProjectionViewer if StyledTextGazeHandler.editor.getAdapter is not null
+            // Only use ProjectionViewer if StyledTextGazeHandler.editor.getAdapter is an instance of ProjectionViewer
         	if (projectionViewer != null) {
         		int foldedLineIndex = targetStyledText.getLineIndex(relativeY);
                 	lineOffset = targetStyledText.getOffsetAtLine(foldedLineIndex);
