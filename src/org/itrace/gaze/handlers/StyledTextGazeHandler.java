@@ -26,7 +26,10 @@ public class StyledTextGazeHandler implements IGazeHandler {
     public StyledTextGazeHandler(Object target, IEditorPart editor) {
         this.targetStyledText = (StyledText) target;
         this.editor = editor;
-        projectionViewer = (ProjectionViewer) editor.getAdapter(ITextOperationTarget.class);
+
+        ITextOperationTarget t = (ITextOperationTarget) editor.getAdapter(ITextOperationTarget.class);
+        if(t instanceof ProjectionViewer) projectionViewer = (ProjectionViewer)t;
+//        projectionViewer = (ProjectionViewer) editor.getAdapter(ITextOperationTarget.class);
     }
 
     @Override
@@ -42,16 +45,21 @@ public class StyledTextGazeHandler implements IGazeHandler {
         try {
             // Get the actual offset of the current line from the top
             // Allows code folding to be taken into account
-            int foldedLineIndex = targetStyledText.getLineIndex(relativeY);
-            int lineOffset = targetStyledText.getOffsetAtLine(foldedLineIndex);   
-            
             int offset = targetStyledText.getOffsetAtPoint(new Point(relativeX, relativeY));
             if(offset == -1) {
             	return null;
             }
-
-            col = offset - lineOffset + 1;
-            lineIndex = projectionViewer.widgetLine2ModelLine(foldedLineIndex);
+            int lineOffset;
+            // Only use ProjectionViewer if StyledTextGazeHandler.editor.getAdapter is not null
+        	if (projectionViewer != null) {
+        		int foldedLineIndex = targetStyledText.getLineIndex(relativeY);
+                	lineOffset = targetStyledText.getOffsetAtLine(foldedLineIndex);
+                	lineIndex = projectionViewer.widgetLine2ModelLine(foldedLineIndex);
+        	} else {
+        		lineIndex = targetStyledText.getLineIndex(relativeY);
+        		lineOffset = targetStyledText.getOffsetAtLine(lineIndex);
+        	}
+        	col = offset - lineOffset + 1;
             
             // (0, 0) relative to the control in absolute screen
             // coordinates.
