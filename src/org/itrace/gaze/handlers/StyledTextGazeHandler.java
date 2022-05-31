@@ -1,3 +1,13 @@
+/********************************************************************************************************************************************************
+* @file StyledTextGazeHandler.java
+*
+* @Copyright (C) 2022 i-trace.org
+*
+* This file is part of iTrace Infrastructure http://www.i-trace.org/.
+* iTrace Infrastructure is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version.
+* iTrace Infrastructure is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.
+* You should have received a copy of the GNU General Public License along with iTrace Infrastructure. If not, see <https://www.gnu.org/licenses/>.
+********************************************************************************************************************************************************/
 package org.itrace.gaze.handlers;
 
 import java.io.IOException;
@@ -26,7 +36,10 @@ public class StyledTextGazeHandler implements IGazeHandler {
     public StyledTextGazeHandler(Object target, IEditorPart editor) {
         this.targetStyledText = (StyledText) target;
         this.editor = editor;
-        projectionViewer = (ProjectionViewer) editor.getAdapter(ITextOperationTarget.class);
+
+        ITextOperationTarget t = (ITextOperationTarget) editor.getAdapter(ITextOperationTarget.class);
+        if(t instanceof ProjectionViewer) projectionViewer = (ProjectionViewer)t;
+//        projectionViewer = (ProjectionViewer) editor.getAdapter(ITextOperationTarget.class);
     }
 
     @Override
@@ -42,16 +55,21 @@ public class StyledTextGazeHandler implements IGazeHandler {
         try {
             // Get the actual offset of the current line from the top
             // Allows code folding to be taken into account
-            int foldedLineIndex = targetStyledText.getLineIndex(relativeY);
-            int lineOffset = targetStyledText.getOffsetAtLine(foldedLineIndex);   
-            
             int offset = targetStyledText.getOffsetAtPoint(new Point(relativeX, relativeY));
             if(offset == -1) {
             	return null;
             }
-
-            col = offset - lineOffset + 1;
-            lineIndex = projectionViewer.widgetLine2ModelLine(foldedLineIndex);
+            int lineOffset;
+            // Only use ProjectionViewer if StyledTextGazeHandler.editor.getAdapter is an instance of ProjectionViewer
+        	if (projectionViewer != null) {
+        		int foldedLineIndex = targetStyledText.getLineIndex(relativeY);
+                	lineOffset = targetStyledText.getOffsetAtLine(foldedLineIndex);
+                	lineIndex = projectionViewer.widgetLine2ModelLine(foldedLineIndex);
+        	} else {
+        		lineIndex = targetStyledText.getLineIndex(relativeY);
+        		lineOffset = targetStyledText.getOffsetAtLine(lineIndex);
+        	}
+        	col = offset - lineOffset + 1;
             
             // (0, 0) relative to the control in absolute screen
             // coordinates.

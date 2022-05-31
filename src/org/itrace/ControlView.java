@@ -1,3 +1,13 @@
+/********************************************************************************************************************************************************
+* @file ControlView.java
+*
+* @Copyright (C) 2022 i-trace.org
+*
+* This file is part of iTrace Infrastructure http://www.i-trace.org/.
+* iTrace Infrastructure is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version.
+* iTrace Infrastructure is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.
+* You should have received a copy of the GNU General Public License along with iTrace Infrastructure. If not, see <https://www.gnu.org/licenses/>.
+********************************************************************************************************************************************************/
 package org.itrace;
 
 import java.util.concurrent.CopyOnWriteArrayList;
@@ -17,6 +27,8 @@ import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.IEditorPart;
 import org.eclipse.ui.IEditorReference;
 import org.eclipse.ui.IPartListener2;
+import org.eclipse.ui.IViewSite;
+import org.eclipse.ui.IWorkbenchPart;
 import org.eclipse.ui.IWorkbenchPartReference;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.part.ViewPart;
@@ -57,10 +69,10 @@ public class ControlView extends ViewPart implements IPartListener2, EventHandle
         
         //Tracking start and stop button.
         final Button trackingButton = new Button(buttonComposite, SWT.PUSH);
-        trackingButton.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true,
-                1, 1));
+        GridData trackingButtonGridData = new GridData(SWT.FILL, SWT.FILL, true, true, 1, 1);
+        trackingButtonGridData.widthHint = 100;
+        trackingButton.setLayoutData(trackingButtonGridData);
         trackingButton.setText("Connect to Core");
-        trackingButton.setSize(200, 50);
         trackingButton.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent e) {
@@ -84,11 +96,9 @@ public class ControlView extends ViewPart implements IPartListener2, EventHandle
         });
         
         //Tuning Composite Start.
-        final Composite tuningComposite = new Composite(parent, SWT.NONE);
-        tuningComposite.setLayout(new GridLayout(2, false));
-
-        final Button highlight_tokens = new Button(tuningComposite, SWT.CHECK);
+        final Button highlight_tokens = new Button(buttonComposite, SWT.CHECK);
         highlight_tokens.setText("Highlight Tokens");
+        highlight_tokens.setLayoutData(new GridData(SWT.LEFT, SWT.CENTER, false, false, 1, 1));
         highlight_tokens.addSelectionListener(new SelectionAdapter(){
         	@Override
             public void widgetSelected(SelectionEvent e) {
@@ -96,12 +106,6 @@ public class ControlView extends ViewPart implements IPartListener2, EventHandle
         	}
         });
         //Tuning composite end.
-		
-		//Filter composite begin.
-		final Composite filterComposite = new Composite(parent, SWT.NONE);
-		filterComposite.setLayout(new GridLayout(2, false));
-		
-		//Filter composite end.
     }
 
     @Override
@@ -119,7 +123,10 @@ public class ControlView extends ViewPart implements IPartListener2, EventHandle
     	if(partRef.getPart(false) instanceof IEditorPart) {
     		ITrace.getDefault().setActiveEditor((IEditorPart)partRef.getPart(false));
     		IEditorPart ep = (IEditorPart)partRef.getPart(true);
-    		ITrace.getDefault().setLineManager(ep.getEditorSite().getActionBars().getStatusLineManager());
+        	ITrace.getDefault().setLineManager(ep.getEditorSite().getActionBars().getStatusLineManager());
+    	} else {
+			IWorkbenchPart ep = partRef.getPart(true);
+	    	ITrace.getDefault().setLineManager(((IViewSite) ep.getSite()).getActionBars().getStatusLineManager());
     	}
     }
 
@@ -128,7 +135,10 @@ public class ControlView extends ViewPart implements IPartListener2, EventHandle
     	if(partRef.getPart(false) instanceof IEditorPart) {
     		ITrace.getDefault().setActiveEditor((IEditorPart)partRef.getPart(false));
     		IEditorPart ep = (IEditorPart)partRef.getPart(true);
-    		ITrace.getDefault().setLineManager(ep.getEditorSite().getActionBars().getStatusLineManager());
+        	ITrace.getDefault().setLineManager(ep.getEditorSite().getActionBars().getStatusLineManager());
+    	} else {
+			IWorkbenchPart ep = partRef.getPart(true);
+	    	ITrace.getDefault().setLineManager(((IViewSite) ep.getSite()).getActionBars().getStatusLineManager());
     	}
     }
 
