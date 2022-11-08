@@ -12,10 +12,9 @@ applications in code reading, code summarization as well as providing recommenda
 ## How to Install Plugin from Eclipse
 1. Go to Help -> Install New Software
 2. Click "Add"
-3. Copy the following address:
+3. Copy the following address to "Location:" and click "Add":
    http://www.sdml.cs.kent.edu/itrace/alpha-0_2_0/iTrace_eclipse_plugin_site/
-4. Copy to "Location:" and click "Add"
-5. Check the project and follow the rest of the installation process.
+4. Check the project and follow the rest of the installation process.
 
 ## How to Build and Run from Source
 1. Install all requirements and resolve Ivy dependencies (secondary click
