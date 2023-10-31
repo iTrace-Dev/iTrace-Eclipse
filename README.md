@@ -30,9 +30,10 @@ applications in code reading, code summarization as well as providing recommenda
 
 To get eye tracking data, this plugin uses the iTrace-Core. You must have it before you can use the extension. It is available here: https://github.com/iTrace-Dev/iTrace-Core
 
-1. Load up a project to run eye tracking on. 
-2. You should see an iTrace window pane with controls. If you do not, click the "Open Perspective" icon enxt to the "Java" perspective icon (by default in the top right corner) and choose "iTrace" from the list.
-3. When you are ready, click on Connect to Core. **After** that, open up the iTrace Core app, configure it, and then click Start Tracker. This way, the plugin can recieve from the core where to output the data.  
+1. **Before** opening Eclipse, make sure to open iTrace-Core. Configure iTrace Core, then open Eclipse.
+2. Load up a project to run eye tracking on. 
+3. You should see an iTrace window pane with controls. If you do not, click the "Open Perspective" icon enxt to the "Java" perspective icon (by default in the top right corner) and choose "iTrace" from the list.
+4. When you are ready, click on Connect to Core. **After** that, switch back to the iTrace Core app and then click Start Tracker. This way, the plugin can recieve from the core where to output the data.  
 4. Now eye tracking data is being recorded. To stop it, press Disconnect. To enable a live reticle that shows where you are looking, enable Display Reticle. 
 
 ## Developer Guidelines
