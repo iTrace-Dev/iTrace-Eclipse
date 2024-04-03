@@ -28,10 +28,17 @@ import org.osgi.framework.BundleContext;
 import org.osgi.service.event.Event;
 import org.osgi.service.event.EventHandler;
 
+import org.itrace.solvers.externallauncher.ExternalLauncher;
+import org.itrace.solvers.externallauncher.IExternalLauncher;
+import org.itrace.solvers.keytracking.IKeyTrackingSolver;
+import org.itrace.solvers.keytracking.KeyTrackingSolver;
 import org.itrace.gaze.IGazeResponse;
+import org.itrace.gaze.IStyledTextGazeResponse;
 import org.itrace.gaze.handlers.IGazeHandler;
 import org.itrace.gaze.handlers.StyledTextGazeHandler;
 import org.itrace.solvers.XMLGazeExportSolver;
+import org.itrace.solvers.emotionpopup.EmotionPopupHandler;
+import org.itrace.solvers.emotionpopup.IEmotionPopupHandler;
 
 /**
  * The activator class controls the plug-in life cycle
@@ -61,6 +68,12 @@ public class ITrace extends AbstractUIPlugin implements EventHandler {
 	private IEventBroker eventBroker;
 	private Shell rootShell;
 
+    private IExternalLauncher externalLauncher;
+    private IEmotionPopupHandler emotionPopupHandler;
+    private IKeyTrackingSolver keyTracker;
+    private boolean externalLauncherToggle = false;
+
+	
 	/**
 	 * The constructor
 	 */
@@ -77,6 +90,9 @@ public class ITrace extends AbstractUIPlugin implements EventHandler {
 			}
 		}
 		connectionManager = new ConnectionManager();
+		externalLauncher = new ExternalLauncher();
+		emotionPopupHandler = new EmotionPopupHandler();
+		keyTracker = new KeyTrackingSolver();
 		// iTrace invokes the events to the Eventbroker and these events are subscribed
 		// in an order.
 		eventBroker = PlatformUI.getWorkbench().getService(IEventBroker.class);
@@ -85,6 +101,9 @@ public class ITrace extends AbstractUIPlugin implements EventHandler {
 		eventBroker.subscribe("iTrace/sessionend", this);
 		xmlSolver = new XMLGazeExportSolver();
 		eventBroker.subscribe("iTrace/xmlOutput", xmlSolver);
+		eventBroker.subscribe("iTrace/externalLauncher", (ExternalLauncher) externalLauncher);
+        eventBroker.subscribe("iTrace/emotionPopup", (EmotionPopupHandler) emotionPopupHandler);
+        eventBroker.subscribe("iTrace/keyTracker", (KeyTrackingSolver) keyTracker);
 	}
 
 	/*
@@ -164,6 +183,14 @@ public class ITrace extends AbstractUIPlugin implements EventHandler {
 		String filename = directoryPath + "/itrace_eclipse-" + System.currentTimeMillis() + ".xml";
 		xmlSolver.config(filename, sessionId);
 		xmlSolver.init();
+		if (externalLauncherToggle) {
+			externalLauncher.config(sessionId);
+			externalLauncher.init();	
+		}
+		emotionPopupHandler.config(sessionId);
+		emotionPopupHandler.init();
+		keyTracker.config(sessionId);
+		keyTracker.init();
 		isRecording = true;
 
 		Thread processThread = new Thread() {
@@ -185,6 +212,10 @@ public class ITrace extends AbstractUIPlugin implements EventHandler {
 		connectionManager.endSocketConnection();
 		if (isRecording) {
 			endSession();
+			xmlSolver.dispose();
+	        externalLauncher.dispose();
+	        emotionPopupHandler.dispose();
+	        keyTracker.dispose();
 		}
 		
 		isConnected = false;
@@ -205,6 +236,11 @@ public class ITrace extends AbstractUIPlugin implements EventHandler {
 
 		xmlSolver.dispose();
 		statusLineManager.setMessage("");
+        externalLauncher.dispose();
+        emotionPopupHandler.dispose();
+        keyTracker.dispose();
+
+		isRecording = false;
 		return true;
 	}
 
@@ -259,6 +295,11 @@ public class ITrace extends AbstractUIPlugin implements EventHandler {
 	public void clearTokenHighlights() {
 		if (activeEditor != null && tokenHighlighters.containsKey(activeEditor)) {
 			tokenHighlighters.get(activeEditor).clearHighlights();			
+	public void toggleExternalLauncher() {
+		if(!externalLauncherToggle) {
+			externalLauncherToggle = true;
+		} else {
+			externalLauncherToggle = false;
 		}
 	}
 
@@ -268,6 +309,8 @@ public class ITrace extends AbstractUIPlugin implements EventHandler {
 	 * is not handled.
 	 */
 	private IGazeResponse handleGaze(int screenX, int screenY, Gaze gaze) {
+		Rectangle monitorBounds = rootShell.getMonitor().getBounds();
+
 		// Look at all editors and find an active one that contains the point
 		// Returns the result of the editor's handleGaze method
 		for (IEditorPart editor : editorHandlers.keySet()) {
@@ -318,6 +361,8 @@ public class ITrace extends AbstractUIPlugin implements EventHandler {
 								response = handleGaze(screenX, screenY, g);
 								if (response != null) {
 									xmlSolver.process(response);
+									eventBroker.post("iTrace/emotionPopup", response);
+	                                eventBroker.post("iTrace/keyTracker", response);	
 								}
 
 								if (showTokenHighlights) {
