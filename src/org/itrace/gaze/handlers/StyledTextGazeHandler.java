@@ -55,7 +55,7 @@ public class StyledTextGazeHandler implements IGazeHandler {
         try {
             // Get the actual offset of the current line from the top
             // Allows code folding to be taken into account
-            int offset = targetStyledText.getOffsetAtPoint(new Point(relativeX, relativeY));
+            int offset = targetStyledText.getOffsetAtLocation(new Point(relativeX, relativeY));
             if(offset == -1) {
             	return null;
             }

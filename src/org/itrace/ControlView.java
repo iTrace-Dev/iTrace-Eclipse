@@ -40,8 +40,6 @@ import org.eclipse.swt.widgets.Label;
  * ViewPart for managing and controlling the plugin.
  */
 public class ControlView extends ViewPart implements IPartListener2, EventHandler{
-	public ControlView() {
-	}
     private Shell rootShell;
 
     private CopyOnWriteArrayList<Control> grayedControls = new CopyOnWriteArrayList<Control>();
@@ -109,24 +107,25 @@ public class ControlView extends ViewPart implements IPartListener2, EventHandle
         	}
         });
         //External Launcher
-        Button external_launcher = new Button(tuningComposite, SWT.CHECK);
-                external_launcher.setText("External Launcher");
+        Button external_launcher = new Button(buttonComposite, SWT.CHECK);
+        external_launcher.setText("External Launcher");
         external_launcher.addSelectionListener(new SelectionAdapter() {
         	@Override
         	public void widgetSelected(SelectionEvent e) {
         		ITrace.getDefault().toggleExternalLauncher();
         	}
         });
-        new Label(tuningComposite, SWT.NONE);
-        
+        //TODO: Key Tracking
+//        Button key_tracking = new Button(buttonComposite, SWT.CHECK);
+//        key_tracking.setText("Key Tracker");
+//        key_tracking.addSelectionListener(new SelectionAdapter() {
+//        	@Override
+//        	public void widgetSelected(SelectionEvent e) {
+//        		ITrace.getDefault().toggleKeyTracker();
+//        	}
+//        });
+        new Label(buttonComposite, SWT.NONE);
         //Tuning composite end.
-		
-		//Filter composite begin.
-		final Composite filterComposite = new Composite(parent, SWT.NONE);
-		filterComposite.setLayout(new GridLayout(2, false));
-		
-		//Filter composite end.
-		
     }
 
     @Override

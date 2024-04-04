@@ -64,6 +64,10 @@ public class Gaze {
         return eventTime;
     }
     
+    public long getSystemTime() {
+    	return systemTime;
+    }
+    
     public String getTimestamp(){
     	return timestampString;
     }    
