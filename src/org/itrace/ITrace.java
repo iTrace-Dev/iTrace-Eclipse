@@ -69,8 +69,8 @@ public class ITrace extends AbstractUIPlugin implements EventHandler {
 	private Shell rootShell;
 	
     private IExternalLauncher externalLauncher;
-    private IEmotionPopupHandler emotionPopupHandler;
-    private IKeyTrackingSolver keyTracker;
+//    private IEmotionPopupHandler emotionPopupHandler;
+//    private IKeyTrackingSolver keyTracker;
     private boolean externalLauncherToggle = false;
     private boolean keyTrackerToggle = false;
 
@@ -92,7 +92,7 @@ public class ITrace extends AbstractUIPlugin implements EventHandler {
 		connectionManager = new ConnectionManager();
 		externalLauncher = new ExternalLauncher();
 //		emotionPopupHandler = new EmotionPopupHandler();
-		keyTracker = new KeyTrackingSolver();
+//		keyTracker = new KeyTrackingSolver();
 		// iTrace invokes the events to the Eventbroker and these events are subscribed
 		// in an order.
 		eventBroker = PlatformUI.getWorkbench().getService(IEventBroker.class);
@@ -103,7 +103,7 @@ public class ITrace extends AbstractUIPlugin implements EventHandler {
 		eventBroker.subscribe("iTrace/xmlOutput", xmlSolver);
 		eventBroker.subscribe("iTrace/externalLauncher", (ExternalLauncher) externalLauncher);
 //        eventBroker.subscribe("iTrace/emotionPopup", (EmotionPopupHandler) emotionPopupHandler);
-        eventBroker.subscribe("iTrace/keyTracker", (KeyTrackingSolver) keyTracker);
+//        eventBroker.subscribe("iTrace/keyTracker", (KeyTrackingSolver) keyTracker);
 		
 	}
 
@@ -233,8 +233,8 @@ public class ITrace extends AbstractUIPlugin implements EventHandler {
 
 		xmlSolver.dispose();
         externalLauncher.dispose();
-        emotionPopupHandler.dispose();
-        keyTracker.dispose();
+//        emotionPopupHandler.dispose();
+//        keyTracker.dispose();
 		statusLineManager.setMessage("");
 		return true;
 	}
