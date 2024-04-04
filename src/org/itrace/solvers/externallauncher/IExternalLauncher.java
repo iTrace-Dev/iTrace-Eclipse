@@ -7,5 +7,7 @@ public interface IExternalLauncher extends ISolver {
     void start();
 
 	void config(String sessionId);
+
+	void config(String sessionID, String affectivaDir, String empaticaDir);
 }
 

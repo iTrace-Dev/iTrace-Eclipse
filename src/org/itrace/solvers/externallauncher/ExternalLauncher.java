@@ -13,12 +13,19 @@ import org.itrace.solvers.externallauncher.IExternalLauncher;
 public class ExternalLauncher implements IExternalLauncher, EventHandler {
     private String filenameSuffix = "-responses-USERNAME-yyMMddTHHmmss-SSSS-Z.csv";
 	private String sessionID;
+	private String affectivaDir, empaticaDir;
 	
 	private Process affectivaProcess = null;
 	private Process shimmerProcess = null;
     private Process empaticaProcess = null;
     
     @Override
+    public void config(String sessionID, String affectivaDir, String empaticaDir) {
+    	filenameSuffix = "-responses-" + sessionID + ".csv";
+    	this.sessionID = sessionID;
+    	this.affectivaDir = affectivaDir;
+    	this.empaticaDir = empaticaDir;
+    }
     public void config(String sessionID, String devUsername) {
     	filenameSuffix = "-responses-" + devUsername + "-" + sessionID + ".csv";
     	this.sessionID = sessionID;
@@ -74,8 +81,13 @@ public class ExternalLauncher implements IExternalLauncher, EventHandler {
         // TODO: Make these paths configurable.
         
         try {
-        	//affectivaProcess = new ProcessBuilder("cmd", "/k", "start", "C:\\EmotionalAwareness-Environment\\iTrace-Archive-SessionTimeServ\\iTraceAffectivaPortTest.exe", getFilename("affectiva")).start();
-        	affectivaProcess = new ProcessBuilder("cmd", "/k", "start", "C:\\EmotionalAwareness-Environment\\Archive-to-Master-Port\\iTrace-Archive-Affectiva\\Affectiva\\bin\\x64\\Debug\\Affectiva.exe", getFilename("affectiva")).start();
+        	if (affectivaDir == "") {
+        		//affectivaProcess = new ProcessBuilder("cmd", "/k", "start", "C:\\EmotionalAwareness-Environment\\iTrace-Archive-SessionTimeServ\\iTraceAffectivaPortTest.exe", getFilename("affectiva")).start();
+            	affectivaProcess = new ProcessBuilder("cmd", "/k", "start", "C:\\EmotionalAwareness-Environment\\Archive-to-Master-Port\\iTrace-Archive-Affectiva\\Affectiva\\bin\\x64\\Debug\\Affectiva.exe", getFilename("affectiva")).start();	
+        	} else {
+        		affectivaProcess = new ProcessBuilder("cmd", "/k", "start", affectivaDir, getFilename("affectiva")).start();
+        	}
+        	
         } catch(IOException e) {
 			e.printStackTrace();
 		}
@@ -87,9 +99,13 @@ public class ExternalLauncher implements IExternalLauncher, EventHandler {
 		// }
 
         try {
-        	empaticaProcess = new ProcessBuilder("cmd", "/k", "start", "C:\\EmotionalAwareness-Environment\\Archive-to-Master-Port\\ble-client-windows-master\\bin\\Debug\\EmpaticaBLEClient.exe", getFilename("empatica")).start();
+        	if (empaticaDir == "") {
+            	empaticaProcess = new ProcessBuilder("cmd", "/k", "start", "C:\\EmotionalAwareness-Environment\\Archive-to-Master-Port\\ble-client-windows-master\\bin\\Debug\\EmpaticaBLEClient.exe", getFilename("empatica")).start();
+        	}
+        	empaticaProcess = new ProcessBuilder("cmd", "/k", "start", empaticaDir, getFilename("empatica")).start();
         } catch(IOException e) {
 			e.printStackTrace();
 		}
     }
+
 }

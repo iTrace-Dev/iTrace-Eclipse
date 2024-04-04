@@ -35,10 +35,10 @@ import org.itrace.solvers.XMLGazeExportSolver;
 
 import org.itrace.solvers.externallauncher.ExternalLauncher;
 import org.itrace.solvers.externallauncher.IExternalLauncher;
-import org.itrace.solvers.keytracking.IKeyTrackingSolver;
-import org.itrace.solvers.keytracking.KeyTrackingSolver;
-import org.itrace.solvers.emotionpopup.EmotionPopupHandler;
-import org.itrace.solvers.emotionpopup.IEmotionPopupHandler;
+//import org.itrace.solvers.keytracking.IKeyTrackingSolver;
+//import org.itrace.solvers.keytracking.KeyTrackingSolver;
+//import org.itrace.solvers.emotionpopup.EmotionPopupHandler;
+//import org.itrace.solvers.emotionpopup.IEmotionPopupHandler;
 
 /**
  * The activator class controls the plug-in life cycle
@@ -73,6 +73,10 @@ public class ITrace extends AbstractUIPlugin implements EventHandler {
 //    private IKeyTrackingSolver keyTracker;
     private boolean externalLauncherToggle = false;
     private boolean keyTrackerToggle = false;
+    private String affectivaDirectory = 
+    		"C:\\\\EmotionalAwareness-Environment\\\\Archive-to-Master-Port\\\\iTrace-Archive-Affectiva\\\\Affectiva\\\\bin\\\\x64\\\\Debug\\\\Affectiva.exe";
+    private String empaticaDirectory = 
+    		"C:\\\\EmotionalAwareness-Environment\\\\Archive-to-Master-Port\\\\ble-client-windows-master\\\\bin\\\\Debug\\\\EmpaticaBLEClient.exe\"";
 
 	/**
 	 * The constructor
@@ -185,7 +189,7 @@ public class ITrace extends AbstractUIPlugin implements EventHandler {
 		xmlSolver.config(filename, sessionId);
 		xmlSolver.init();
 		if (externalLauncherToggle) {
-			externalLauncher.config(sessionId);
+			externalLauncher.config(sessionId, affectivaDirectory, empaticaDirectory);
 			externalLauncher.init();	
 		}
 //		emotionPopupHandler.config(sessionId);
@@ -299,6 +303,12 @@ public class ITrace extends AbstractUIPlugin implements EventHandler {
 		} else {
 			externalLauncherToggle = false;
 		}
+	}
+	public void setAffectivaDirectory(String file) {
+		affectivaDirectory = file;
+	}
+	public void setEmpaticaDirectory(String file) {
+		empaticaDirectory = file;
 	}
 	public void toggleKeyTracker() {
 		if(!keyTrackerToggle) {

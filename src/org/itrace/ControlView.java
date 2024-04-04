@@ -11,19 +11,22 @@
 package org.itrace;
 
 import java.util.concurrent.CopyOnWriteArrayList;
-
 import org.eclipse.e4.core.services.events.IEventBroker;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
+import org.eclipse.swt.events.ModifyEvent;
+import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.layout.RowLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
+import org.eclipse.swt.widgets.FileDialog;
 import org.eclipse.swt.widgets.MessageBox;
 import org.eclipse.swt.widgets.Shell;
+import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.IEditorPart;
 import org.eclipse.ui.IEditorReference;
 import org.eclipse.ui.IPartListener2;
@@ -45,6 +48,10 @@ public class ControlView extends ViewPart implements IPartListener2, EventHandle
     private CopyOnWriteArrayList<Control> grayedControls = new CopyOnWriteArrayList<Control>();
     private IEventBroker eventBroker;
 
+    private static final String AFFECTIVA_PREF_KEY = "AffectivaDir";
+    private static final String EMPATICA_PREF_KEY = "EmpaticaDir";
+    private static final String DEFAULT_TEXT = ""; // Default text if preference not found
+    
     @Override
     public void createPartControl(Composite parent) {
     	eventBroker = PlatformUI.getWorkbench().getService(IEventBroker.class);
@@ -95,8 +102,9 @@ public class ControlView extends ViewPart implements IPartListener2, EventHandle
             	
             }
         });
+        final Label blank = new Label(buttonComposite, SWT.NONE);
+        blank.setText("");
         
-        //Tuning Composite Start.
         final Button highlight_tokens = new Button(buttonComposite, SWT.CHECK);
         highlight_tokens.setText("Highlight Tokens");
         highlight_tokens.setLayoutData(new GridData(SWT.LEFT, SWT.CENTER, false, false, 1, 1));
@@ -114,6 +122,78 @@ public class ControlView extends ViewPart implements IPartListener2, EventHandle
         	public void widgetSelected(SelectionEvent e) {
         		ITrace.getDefault().toggleExternalLauncher();
         	}
+        });
+        final Composite textComposite = new Composite(parent, SWT.NONE);
+        textComposite.setLayout(new GridLayout(3, false));
+        //Affectiva Directory
+        Label affectiva_dir = new Label(textComposite, SWT.CHECK);
+        affectiva_dir.setText("Affectiva Directory:");
+        //TODO: use saved settings
+
+        Text affectiva_directory = new Text(textComposite, SWT.BORDER);
+        GridData textLayout = new GridData(SWT.FILL, SWT.CENTER, true, false);
+        textLayout.widthHint = 200;
+        affectiva_directory.setLayoutData(textLayout);        
+        affectiva_directory.addModifyListener(new ModifyListener() {
+            @Override
+            public void modifyText(ModifyEvent e) {
+                ITrace.getDefault().setAffectivaDirectory(affectiva_directory.getText());
+            }
+        });
+        
+        // file select button
+        Button select_affectiva = new Button(textComposite, SWT.OPEN);
+        select_affectiva.setText("...");
+        select_affectiva.addSelectionListener(new SelectionAdapter() {
+            @Override
+            public void widgetSelected(SelectionEvent e) {
+                FileDialog dialog = new FileDialog(rootShell, SWT.OPEN);
+                dialog.setText("Open");
+                dialog.setFilterExtensions(new String[] { "*.exe", "*.*" }); // Filter extensions
+                String affectivaSelectedFile = dialog.open();
+                if (affectivaSelectedFile != null) {
+                    System.out.println("Selected file: " + affectivaSelectedFile);
+                    // Perform actions with the selected file path
+                    affectiva_directory.setText(affectivaSelectedFile);
+                } else {
+                    System.out.println("No file selected");
+                }
+            }
+        });
+        //Empatica Directory
+        Label empatica_dir = new Label(textComposite, SWT.CHECK);
+        empatica_dir.setText("Empatica Directory:");
+        // TODO: persistent directory value
+//        directorySettings.setDefault(EMPATICA_PREF_KEY, DEFAULT_TEXT);
+        
+        Text empatica_directory = new Text(textComposite, SWT.BORDER);
+        empatica_directory.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
+        empatica_directory.addModifyListener(new ModifyListener() {
+            @Override
+            public void modifyText(ModifyEvent e) {
+                ITrace.getDefault().setEmpaticaDirectory(empatica_directory.getText());
+            }
+        });
+//        empatica_directory.setText(directorySettings.getString(EMPATICA_PREF_KEY));
+        
+        // file select button
+        Button select_empatica = new Button(textComposite, SWT.OPEN);
+        select_empatica.setText("...");
+        select_empatica.addSelectionListener(new SelectionAdapter() {
+            @Override
+            public void widgetSelected(SelectionEvent e) {
+                FileDialog dialog = new FileDialog(rootShell, SWT.OPEN);
+                dialog.setText("Open");
+                dialog.setFilterExtensions(new String[] { "*.exe", "*.*" }); // Filter extensions
+                String empaticaSelectedFile = dialog.open();
+                if (empaticaSelectedFile != null) {
+                    System.out.println("Selected file: " + empaticaSelectedFile);
+                    // Perform actions with the selected file path
+                    empatica_directory.setText(empaticaSelectedFile);
+                } else {
+                    System.out.println("No file selected");
+                }
+            }
         });
         //TODO: Key Tracking
 //        Button key_tracking = new Button(buttonComposite, SWT.CHECK);
